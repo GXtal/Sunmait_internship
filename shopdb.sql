@@ -122,8 +122,8 @@ CREATE TABLE images (
   CONSTRAINT fk_images_product_id
     FOREIGN KEY (product_id)
     REFERENCES products (id)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
 
 

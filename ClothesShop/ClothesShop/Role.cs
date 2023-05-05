@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Role
+public class Role
 {
     public int Id { get; set; }
 

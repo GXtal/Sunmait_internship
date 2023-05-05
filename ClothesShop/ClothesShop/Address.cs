@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Address
+public class Address
 {
     public int Id { get; set; }
 

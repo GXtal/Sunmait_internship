@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Brand
+public class Brand
 {
     public int Id { get; set; }
 

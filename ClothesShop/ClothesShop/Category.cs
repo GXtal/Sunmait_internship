@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Category
+public class Category
 {
     public int Id { get; set; }
 
@@ -14,5 +14,5 @@ public partial class Category
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 
-    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+    public virtual ICollection<CategoriesSection> CategoriesSections { get; set; } = new List<CategoriesSection>();
 }

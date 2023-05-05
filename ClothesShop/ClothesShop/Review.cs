@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Review
+public class Review
 {
     public int Id { get; set; }
 

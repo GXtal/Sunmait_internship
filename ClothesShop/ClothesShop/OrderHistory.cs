@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class OrderHistory
+public class OrderHistory
 {
     public int Id { get; set; }
 

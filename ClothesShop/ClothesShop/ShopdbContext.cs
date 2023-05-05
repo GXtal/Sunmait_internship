@@ -2,7 +2,7 @@
 
 namespace ClothesShop;
 
-public partial class ShopdbContext : DbContext
+public class ShopdbContext : DbContext
 {
     public ShopdbContext()
     {
@@ -40,6 +40,8 @@ public partial class ShopdbContext : DbContext
     public virtual DbSet<Status> Statuses { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<CategoriesSection> CategoriesSections { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -87,27 +89,28 @@ public partial class ShopdbContext : DbContext
             entity.HasIndex(e => e.Name, "categories_name_key").IsUnique();           
             
             entity.Property(e => e.ParentCategoryId).HasColumnName("parent_category_id");
-            entity.HasOne(d => d.ParentCategory).WithMany(p => p.InverseParentCategory)
-                .HasForeignKey(d => d.ParentCategoryId)
+            entity.HasOne(e => e.ParentCategory).WithMany(p => p.InverseParentCategory)
+                .HasForeignKey(e => e.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_category_category_id");
+        });
 
-            entity.HasMany(d => d.Sections).WithMany(p => p.Categories)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CategoriesSection",
-                    r => r.HasOne<Section>().WithMany()
-                        .HasForeignKey("SectionId")
-                        .HasConstraintName("fk_categories_sections_section_id"),
-                    l => l.HasOne<Category>().WithMany()
-                        .HasForeignKey("CategoryId")
-                        .HasConstraintName("fk_categories_sections_category_id"),
-                    j =>
-                    {
-                        j.HasKey("CategoryId", "SectionId").HasName("categories_sections_pkey");
-                        j.ToTable("categories_sections");
-                        j.IndexerProperty<int>("CategoryId").HasColumnName("category_id");
-                        j.IndexerProperty<int>("SectionId").HasColumnName("section_id");
-                    });
+        modelBuilder.Entity<CategoriesSection>(entity =>
+        {
+            entity.ToTable("categories_sections");
+
+            entity.Property(e => e.SectionId).HasColumnName("section_id");
+            entity.Property(e => e.CaregoryId).HasColumnName("category_id");
+            entity.HasKey(e => new { e.CaregoryId, e.SectionId });
+
+            entity.HasOne(e => e.Section).WithMany(s => s.CategoriesSections)
+                .HasForeignKey(e => e.SectionId)
+                .HasConstraintName("fk_categories_sections_section_id");
+
+            entity.HasOne(e => e.Category).WithMany(s => s.CategoriesSections)
+                .HasForeignKey(e => e.CaregoryId)
+                .HasConstraintName("fk_categories_sections_category_id");
+
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -132,14 +135,14 @@ public partial class ShopdbContext : DbContext
             entity.Property(e => e.Quantity).HasColumnName("quantity");
 
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.HasOne(d => d.Category).WithMany(p => p.Products)
-                .HasForeignKey(d => d.CategoryId)
+            entity.HasOne(e => e.Category).WithMany(p => p.Products)
+                .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_products_category_id");
 
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
-            entity.HasOne(d => d.Brand).WithMany(p => p.Products)
-                .HasForeignKey(d => d.BrandId)
+            entity.HasOne(e => e.Brand).WithMany(p => p.Products)
+                .HasForeignKey(e => e.BrandId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_products_brand_id");
 
@@ -175,8 +178,8 @@ public partial class ShopdbContext : DbContext
                .HasColumnName("password_hash");
 
             entity.Property(e => e.RoleId).HasColumnName("role_id");
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RoleId)
+            entity.HasOne(e => e.Role).WithMany(p => p.Users)
+                .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_users_role_id");
 
@@ -197,8 +200,8 @@ public partial class ShopdbContext : DbContext
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.HasOne(d => d.User).WithMany(p => p.Contacts)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(e => e.User).WithMany(p => p.Contacts)
+                .HasForeignKey(e => e.UserId)
                 .HasConstraintName("contacts_user_id_fkey");
 
             entity.Property(e => e.PhoneNumber)
@@ -214,8 +217,8 @@ public partial class ShopdbContext : DbContext
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.HasOne(d => d.User).WithMany(p => p.Addresses)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(e => e.User).WithMany(p => p.Addresses)
+                .HasForeignKey(e => e.UserId)
                 .HasConstraintName("addresses_user_id_fkey");
 
             entity.Property(e => e.FullAddress)
@@ -237,14 +240,14 @@ public partial class ShopdbContext : DbContext
                 .HasColumnName("comment");
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.HasOne(d => d.User).WithMany(p => p.Reviews)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(e => e.User).WithMany(p => p.Reviews)
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_reviews_user_id");
 
             entity.Property(e => e.ProductId).HasColumnName("product_id");          
-            entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
-                .HasForeignKey(d => d.ProductId)
+            entity.HasOne(e => e.Product).WithMany(p => p.Reviews)
+                .HasForeignKey(e => e.ProductId)
                 .HasConstraintName("fk_reviews_product_id");
         });
 
@@ -260,8 +263,8 @@ public partial class ShopdbContext : DbContext
                 .HasColumnName("path");
 
             entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.HasOne(d => d.Product).WithMany(p => p.Images)
-                .HasForeignKey(d => d.ProductId)
+            entity.HasOne(e => e.Product).WithMany(p => p.Images)
+                .HasForeignKey(e => e.ProductId)
                 .HasConstraintName("fk_images_product_id");
         });
 
@@ -270,7 +273,7 @@ public partial class ShopdbContext : DbContext
             entity.ToTable("statuses");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.HasKey(e => e.Id).HasName("statuses_pkey");
+            entity.HasKey(e => e.Id);
             
             entity.Property(e => e.Name)
                 .HasMaxLength(45)
@@ -282,11 +285,11 @@ public partial class ShopdbContext : DbContext
             entity.ToTable("orders");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.HasKey(e => e.Id).HasName("orders_pkey");
+            entity.HasKey(e => e.Id);
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.HasOne(d => d.User).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(e => e.User).WithMany(p => p.Orders)
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_orders_user_id");
 
@@ -300,17 +303,17 @@ public partial class ShopdbContext : DbContext
             entity.ToTable("order_histories");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.HasKey(e => e.Id).HasName("order_histories_pkey");
+            entity.HasKey(e => e.Id);
 
             entity.Property(e => e.OrderId).HasColumnName("order_id");
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderHistories)
-                .HasForeignKey(d => d.OrderId)
+            entity.HasOne(e => e.Order).WithMany(p => p.OrderHistories)
+                .HasForeignKey(e => e.OrderId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_orders_histories_order_id");
             
             entity.Property(e => e.StatusId).HasColumnName("status_id");
-            entity.HasOne(d => d.Status).WithMany(p => p.OrderHistories)
-               .HasForeignKey(d => d.StatusId)
+            entity.HasOne(e => e.Status).WithMany(p => p.OrderHistories)
+               .HasForeignKey(e => e.StatusId)
                .OnDelete(DeleteBehavior.Restrict)
                .HasConstraintName("fk_orders_histories_status_id");
 
@@ -327,21 +330,18 @@ public partial class ShopdbContext : DbContext
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.Count).HasColumnName("count");
 
-            entity.HasKey(e => new { e.OrderId, e.ProductId }).HasName("orders_products_pkey");
+            entity.HasKey(e => new { e.OrderId, e.ProductId });
 
-            entity.HasOne(d => d.Order).WithMany(p => p.OrdersProducts)
-                .HasForeignKey(d => d.OrderId)
+            entity.HasOne(e => e.Order).WithMany(p => p.OrdersProducts)
+                .HasForeignKey(e => e.OrderId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_orders_products_order_id");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.OrdersProducts)
-                .HasForeignKey(d => d.ProductId)
+            entity.HasOne(e => e.Product).WithMany(p => p.OrdersProducts)
+                .HasForeignKey(e => e.ProductId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_orders_products_product_id");
         });
 
-        OnModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

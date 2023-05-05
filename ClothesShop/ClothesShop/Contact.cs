@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Contact
+public class Contact
 {
     public int Id { get; set; }
 

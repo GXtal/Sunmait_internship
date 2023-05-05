@@ -1,6 +1,6 @@
 ﻿namespace ClothesShop;
 
-public partial class Image
+public class Image
 {
     public int Id { get; set; }
 

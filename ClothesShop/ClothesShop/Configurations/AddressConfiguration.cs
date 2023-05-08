@@ -12,7 +12,7 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
 
         builder.Property(e => e.UserId).IsRequired();
         builder.HasOne(e => e.User).WithMany(p => p.Addresses)
-            .HasForeignKey(e => e.UserId);
+            .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(e => e.FullAddress)
             .HasMaxLength(200)

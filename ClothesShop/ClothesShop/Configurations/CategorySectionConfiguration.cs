@@ -11,9 +11,9 @@ public class CategorySectionConfiguration : IEntityTypeConfiguration<CategorySec
         builder.HasKey(e => new { e.CaregoryId, e.SectionId });
 
         builder.HasOne(e => e.Section).WithMany(s => s.CategoriesSections)
-            .HasForeignKey(e => e.SectionId);
+            .HasForeignKey(e => e.SectionId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.Category).WithMany(s => s.CategoriesSections)
-            .HasForeignKey(e => e.CaregoryId);
+            .HasForeignKey(e => e.CaregoryId).OnDelete(DeleteBehavior.Cascade); ;
     }
 }

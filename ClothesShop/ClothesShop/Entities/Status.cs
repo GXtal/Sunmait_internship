@@ -6,5 +6,5 @@ public class Status
 
     public string Name { get; set; }
 
-    public virtual ICollection<OrderHistory> OrderHistories { get; set; } = new List<OrderHistory>();
+    public virtual ICollection<OrderHistory> OrderHistories { get; set; }
 }

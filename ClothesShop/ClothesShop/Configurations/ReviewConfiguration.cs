@@ -23,6 +23,7 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
 
         builder.Property(e => e.ProductId).IsRequired();
         builder.HasOne(e => e.Product).WithMany(p => p.Reviews)
-            .HasForeignKey(e => e.ProductId);
+            .HasForeignKey(e => e.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

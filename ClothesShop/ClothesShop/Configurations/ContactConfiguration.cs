@@ -12,7 +12,7 @@ public class ContactConfiguration : IEntityTypeConfiguration<Contact>
 
         builder.Property(e => e.UserId).IsRequired();
         builder.HasOne(e => e.User).WithMany(p => p.Contacts)
-            .HasForeignKey(e => e.UserId);
+            .HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(e => e.PhoneNumber)
             .HasMaxLength(20)

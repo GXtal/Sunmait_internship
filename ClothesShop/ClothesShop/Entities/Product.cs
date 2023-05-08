@@ -1,14 +1,14 @@
-﻿namespace ClothesShop;
+﻿namespace ClothesShop.Entities;
 
 public class Product
 {
     public int Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Name { get; set; }
 
     public decimal Price { get; set; }
 
-    public string Description { get; set; } = null!;
+    public string Description { get; set; }
 
     public int Quantity { get; set; }
 
@@ -16,13 +16,13 @@ public class Product
 
     public int BrandId { get; set; }
 
-    public virtual Brand Brand { get; set; } = null!;
+    public virtual Brand Brand { get; set; }
 
-    public virtual Category Category { get; set; } = null!;
+    public virtual Category Category { get; set; }
 
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
-    public virtual ICollection<OrdersProduct> OrdersProducts { get; set; } = new List<OrdersProduct>();
+    public virtual ICollection<OrderProduct> OrdersProducts { get; set; } = new List<OrderProduct>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

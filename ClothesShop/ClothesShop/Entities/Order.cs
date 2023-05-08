@@ -1,4 +1,4 @@
-﻿namespace ClothesShop;
+﻿namespace ClothesShop.Entities;
 
 public class Order
 {
@@ -10,7 +10,7 @@ public class Order
 
     public virtual ICollection<OrderHistory> OrderHistories { get; set; } = new List<OrderHistory>();
 
-    public virtual ICollection<OrdersProduct> OrdersProducts { get; set; } = new List<OrdersProduct>();
+    public virtual ICollection<OrderProduct> OrdersProducts { get; set; } = new List<OrderProduct>();
 
-    public virtual User User { get; set; } = null!;
+    public virtual User User { get; set; }
 }

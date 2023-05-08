@@ -1,4 +1,4 @@
-﻿namespace ClothesShop;
+﻿namespace ClothesShop.Entities;
 
 public class OrderHistory
 {
@@ -10,7 +10,7 @@ public class OrderHistory
 
     public DateTime SetTime { get; set; }
 
-    public virtual Order Order { get; set; } = null!;
+    public virtual Order Order { get; set; }
 
-    public virtual Status Status { get; set; } = null!;
+    public virtual Status Status { get; set; }
 }

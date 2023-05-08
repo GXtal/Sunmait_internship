@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClothesShop.Migrations
 {
     [DbContext(typeof(ShopdbContext))]
-    [Migration("20230505134618_Initial")]
+    [Migration("20230508103717_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,268 +25,231 @@ namespace ClothesShop.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CategoriesSection", b =>
-                {
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<int>("SectionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("section_id");
-
-                    b.HasKey("CategoryId", "SectionId")
-                        .HasName("categories_sections_pkey");
-
-                    b.HasIndex("SectionId");
-
-                    b.ToTable("categories_sections", (string)null);
-                });
-
             modelBuilder.Entity("ClothesShop.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FullAddress")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("full_address");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("ClothesShop.Brand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Name" }, "brands_name_key")
+                    b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("ClothesShop.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("parent_category_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentCategoryId");
-
-                    b.HasIndex(new[] { "Name" }, "categories_name_key")
+                    b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("categories", (string)null);
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("ClothesShop.CategorySection", b =>
+                {
+                    b.Property<int>("CaregoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CaregoryId", "SectionId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("CategoriesSections");
                 });
 
             modelBuilder.Entity("ClothesShop.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("contacts", (string)null);
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("ClothesShop.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("path");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("ClothesShop.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("TotalCost")
-                        .HasColumnType("money")
-                        .HasColumnName("total_cost");
+                        .HasColumnType("money");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnType("integer");
 
-                    b.HasKey("Id")
-                        .HasName("orders_pkey");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ClothesShop.OrderHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("OrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("order_id");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("SetTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("set_time");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("integer")
-                        .HasColumnName("status_id");
+                        .HasColumnType("integer");
 
-                    b.HasKey("Id")
-                        .HasName("order_histories_pkey");
+                    b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("order_histories", (string)null);
+                    b.ToTable("OrderHistories");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrdersProduct", b =>
+            modelBuilder.Entity("ClothesShop.OrderProduct", b =>
                 {
                     b.Property<int>("OrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("order_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Count")
-                        .HasColumnType("integer")
-                        .HasColumnName("count");
+                        .HasColumnType("integer");
 
-                    b.HasKey("OrderId", "ProductId")
-                        .HasName("orders_products_pkey");
+                    b.HasKey("OrderId", "ProductId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("orders_products", (string)null);
+                    b.ToTable("OrdersProducts");
                 });
 
             modelBuilder.Entity("ClothesShop.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BrandId")
-                        .HasColumnType("integer")
-                        .HasColumnName("brand_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("description");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("money")
-                        .HasColumnName("price");
+                        .HasColumnType("money");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -294,35 +257,30 @@ namespace ClothesShop.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ClothesShop.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("comment");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Rating")
-                        .HasColumnType("integer")
-                        .HasColumnName("rating");
+                        .HasColumnType("integer");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -330,135 +288,105 @@ namespace ClothesShop.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ClothesShop.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("ClothesShop.Section", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Name" }, "sections_name_key")
+                    b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("sections", (string)null);
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("ClothesShop.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
-                    b.HasKey("Id")
-                        .HasName("statuses_pkey");
+                    b.HasKey("Id");
 
-                    b.ToTable("statuses", (string)null);
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("ClothesShop.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("email");
+                        .HasColumnType("character varying(45)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(45)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("password_hash");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
-                        .HasColumnName("surname");
+                        .HasColumnType("character varying(45)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex(new[] { "Email" }, "users_email_key")
+                    b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("users", (string)null);
-                });
+                    b.HasIndex("RoleId");
 
-            modelBuilder.Entity("CategoriesSection", b =>
-                {
-                    b.HasOne("ClothesShop.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_categories_sections_category_id");
-
-                    b.HasOne("ClothesShop.Section", null)
-                        .WithMany()
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_categories_sections_section_id");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ClothesShop.Address", b =>
@@ -467,8 +395,7 @@ namespace ClothesShop.Migrations
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("addresses_user_id_fkey");
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -476,12 +403,30 @@ namespace ClothesShop.Migrations
             modelBuilder.Entity("ClothesShop.Category", b =>
                 {
                     b.HasOne("ClothesShop.Category", "ParentCategory")
-                        .WithMany("InverseParentCategory")
+                        .WithMany("ChildCategories")
                         .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_category_category_id");
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("ClothesShop.CategorySection", b =>
+                {
+                    b.HasOne("ClothesShop.Category", "Category")
+                        .WithMany("CategoriesSections")
+                        .HasForeignKey("CaregoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClothesShop.Section", "Section")
+                        .WithMany("CategoriesSections")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Section");
                 });
 
             modelBuilder.Entity("ClothesShop.Contact", b =>
@@ -490,8 +435,7 @@ namespace ClothesShop.Migrations
                         .WithMany("Contacts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("contacts_user_id_fkey");
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -502,8 +446,7 @@ namespace ClothesShop.Migrations
                         .WithMany("Images")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_images_product_id");
+                        .IsRequired();
 
                     b.Navigation("Product");
                 });
@@ -514,8 +457,7 @@ namespace ClothesShop.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_user_id");
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -526,36 +468,32 @@ namespace ClothesShop.Migrations
                         .WithMany("OrderHistories")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_histories_order_id");
+                        .IsRequired();
 
                     b.HasOne("ClothesShop.Status", "Status")
                         .WithMany("OrderHistories")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_histories_status_id");
+                        .IsRequired();
 
                     b.Navigation("Order");
 
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrdersProduct", b =>
+            modelBuilder.Entity("ClothesShop.OrderProduct", b =>
                 {
                     b.HasOne("ClothesShop.Order", "Order")
                         .WithMany("OrdersProducts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_products_order_id");
+                        .IsRequired();
 
                     b.HasOne("ClothesShop.Product", "Product")
                         .WithMany("OrdersProducts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_products_product_id");
+                        .IsRequired();
 
                     b.Navigation("Order");
 
@@ -568,15 +506,13 @@ namespace ClothesShop.Migrations
                         .WithMany("Products")
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_products_brand_id");
+                        .IsRequired();
 
                     b.HasOne("ClothesShop.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_products_category_id");
+                        .IsRequired();
 
                     b.Navigation("Brand");
 
@@ -589,14 +525,12 @@ namespace ClothesShop.Migrations
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_reviews_product_id");
+                        .IsRequired();
 
                     b.HasOne("ClothesShop.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_reviews_user_id");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Product");
 
@@ -609,8 +543,7 @@ namespace ClothesShop.Migrations
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_users_role_id");
+                        .IsRequired();
 
                     b.Navigation("Role");
                 });
@@ -622,7 +555,9 @@ namespace ClothesShop.Migrations
 
             modelBuilder.Entity("ClothesShop.Category", b =>
                 {
-                    b.Navigation("InverseParentCategory");
+                    b.Navigation("CategoriesSections");
+
+                    b.Navigation("ChildCategories");
 
                     b.Navigation("Products");
                 });
@@ -646,6 +581,11 @@ namespace ClothesShop.Migrations
             modelBuilder.Entity("ClothesShop.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ClothesShop.Section", b =>
+                {
+                    b.Navigation("CategoriesSections");
                 });
 
             modelBuilder.Entity("ClothesShop.Status", b =>

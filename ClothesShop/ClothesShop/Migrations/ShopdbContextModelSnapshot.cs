@@ -22,7 +22,7 @@ namespace ClothesShop.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ClothesShop.Address", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,7 +45,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("ClothesShop.Brand", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Brand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Brands");
                 });
 
-            modelBuilder.Entity("ClothesShop.Category", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,7 +92,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("ClothesShop.CategorySection", b =>
+            modelBuilder.Entity("ClothesShop.Entities.CategorySection", b =>
                 {
                     b.Property<int>("CaregoryId")
                         .HasColumnType("integer");
@@ -107,7 +107,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("CategoriesSections");
                 });
 
-            modelBuilder.Entity("ClothesShop.Contact", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -130,7 +130,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("ClothesShop.Image", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -153,7 +153,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("ClothesShop.Order", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,7 +174,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrderHistory", b =>
+            modelBuilder.Entity("ClothesShop.Entities.OrderHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -200,7 +200,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("OrderHistories");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrderProduct", b =>
+            modelBuilder.Entity("ClothesShop.Entities.OrderProduct", b =>
                 {
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
@@ -218,7 +218,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("OrdersProducts");
                 });
 
-            modelBuilder.Entity("ClothesShop.Product", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,7 +257,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("ClothesShop.Review", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -288,7 +288,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("ClothesShop.Role", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -306,7 +306,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("ClothesShop.Section", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Section", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +327,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Sections");
                 });
 
-            modelBuilder.Entity("ClothesShop.Status", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -345,7 +345,7 @@ namespace ClothesShop.Migrations
                     b.ToTable("Statuses");
                 });
 
-            modelBuilder.Entity("ClothesShop.User", b =>
+            modelBuilder.Entity("ClothesShop.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -386,9 +386,9 @@ namespace ClothesShop.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ClothesShop.Address", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Address", b =>
                 {
-                    b.HasOne("ClothesShop.User", "User")
+                    b.HasOne("ClothesShop.Entities.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -397,9 +397,9 @@ namespace ClothesShop.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClothesShop.Category", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Category", b =>
                 {
-                    b.HasOne("ClothesShop.Category", "ParentCategory")
+                    b.HasOne("ClothesShop.Entities.Category", "ParentCategory")
                         .WithMany("ChildCategories")
                         .HasForeignKey("ParentCategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -407,15 +407,15 @@ namespace ClothesShop.Migrations
                     b.Navigation("ParentCategory");
                 });
 
-            modelBuilder.Entity("ClothesShop.CategorySection", b =>
+            modelBuilder.Entity("ClothesShop.Entities.CategorySection", b =>
                 {
-                    b.HasOne("ClothesShop.Category", "Category")
+                    b.HasOne("ClothesShop.Entities.Category", "Category")
                         .WithMany("CategoriesSections")
                         .HasForeignKey("CaregoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClothesShop.Section", "Section")
+                    b.HasOne("ClothesShop.Entities.Section", "Section")
                         .WithMany("CategoriesSections")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -426,9 +426,9 @@ namespace ClothesShop.Migrations
                     b.Navigation("Section");
                 });
 
-            modelBuilder.Entity("ClothesShop.Contact", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Contact", b =>
                 {
-                    b.HasOne("ClothesShop.User", "User")
+                    b.HasOne("ClothesShop.Entities.User", "User")
                         .WithMany("Contacts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -437,9 +437,9 @@ namespace ClothesShop.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClothesShop.Image", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Image", b =>
                 {
-                    b.HasOne("ClothesShop.Product", "Product")
+                    b.HasOne("ClothesShop.Entities.Product", "Product")
                         .WithMany("Images")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -448,9 +448,9 @@ namespace ClothesShop.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ClothesShop.Order", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Order", b =>
                 {
-                    b.HasOne("ClothesShop.User", "User")
+                    b.HasOne("ClothesShop.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -459,15 +459,15 @@ namespace ClothesShop.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrderHistory", b =>
+            modelBuilder.Entity("ClothesShop.Entities.OrderHistory", b =>
                 {
-                    b.HasOne("ClothesShop.Order", "Order")
+                    b.HasOne("ClothesShop.Entities.Order", "Order")
                         .WithMany("OrderHistories")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClothesShop.Status", "Status")
+                    b.HasOne("ClothesShop.Entities.Status", "Status")
                         .WithMany("OrderHistories")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -478,15 +478,15 @@ namespace ClothesShop.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("ClothesShop.OrderProduct", b =>
+            modelBuilder.Entity("ClothesShop.Entities.OrderProduct", b =>
                 {
-                    b.HasOne("ClothesShop.Order", "Order")
+                    b.HasOne("ClothesShop.Entities.Order", "Order")
                         .WithMany("OrdersProducts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClothesShop.Product", "Product")
+                    b.HasOne("ClothesShop.Entities.Product", "Product")
                         .WithMany("OrdersProducts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -497,15 +497,15 @@ namespace ClothesShop.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ClothesShop.Product", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Product", b =>
                 {
-                    b.HasOne("ClothesShop.Brand", "Brand")
+                    b.HasOne("ClothesShop.Entities.Brand", "Brand")
                         .WithMany("Products")
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ClothesShop.Category", "Category")
+                    b.HasOne("ClothesShop.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -516,15 +516,15 @@ namespace ClothesShop.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ClothesShop.Review", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Review", b =>
                 {
-                    b.HasOne("ClothesShop.Product", "Product")
+                    b.HasOne("ClothesShop.Entities.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClothesShop.User", "User")
+                    b.HasOne("ClothesShop.Entities.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -534,9 +534,9 @@ namespace ClothesShop.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ClothesShop.User", b =>
+            modelBuilder.Entity("ClothesShop.Entities.User", b =>
                 {
-                    b.HasOne("ClothesShop.Role", "Role")
+                    b.HasOne("ClothesShop.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -545,12 +545,12 @@ namespace ClothesShop.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ClothesShop.Brand", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Brand", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("ClothesShop.Category", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Category", b =>
                 {
                     b.Navigation("CategoriesSections");
 
@@ -559,14 +559,14 @@ namespace ClothesShop.Migrations
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("ClothesShop.Order", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Order", b =>
                 {
                     b.Navigation("OrderHistories");
 
                     b.Navigation("OrdersProducts");
                 });
 
-            modelBuilder.Entity("ClothesShop.Product", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Product", b =>
                 {
                     b.Navigation("Images");
 
@@ -575,22 +575,22 @@ namespace ClothesShop.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("ClothesShop.Role", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Role", b =>
                 {
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("ClothesShop.Section", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Section", b =>
                 {
                     b.Navigation("CategoriesSections");
                 });
 
-            modelBuilder.Entity("ClothesShop.Status", b =>
+            modelBuilder.Entity("ClothesShop.Entities.Status", b =>
                 {
                     b.Navigation("OrderHistories");
                 });
 
-            modelBuilder.Entity("ClothesShop.User", b =>
+            modelBuilder.Entity("ClothesShop.Entities.User", b =>
                 {
                     b.Navigation("Addresses");
 

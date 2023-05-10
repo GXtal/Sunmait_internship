@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClothesShop.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,4 +18,9 @@ public class ProductReview
     public string CommentatorName { get; set; }
 
     public string CommentatorEmail { get; set;}
+
+    public override string ToString()
+    {
+        return $"Id:{ProductId}, commentator:{CommentatorName}, comment:{Comment}, rate:{Rating}, email:{CommentatorEmail}";
+    }
 }

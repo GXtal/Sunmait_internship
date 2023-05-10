@@ -12,4 +12,9 @@ public class CompletedOrder
 
     public DateTime CompleteTime { get; set; }
 
+    public override string ToString()
+    {
+        return $"Id:{OrderId}, User:{UserId}, Cost:{TotalOrderCost}, count:{ProductCount}, time:{CompleteTime}";
+    }
+
 }

@@ -47,7 +47,7 @@ public class ShopdbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=clothesshopdb;Username=postgres;Password=30122002vano");
+        optionsBuilder.UseLazyLoadingProxies().UseNpgsql("Host=localhost;Port=5432;Database=clothesshopdb;Username=postgres;Password=30122002vano");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

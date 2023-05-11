@@ -1,4 +1,6 @@
-﻿using ClothesShop.Queries;
+﻿using ClothesShop.Entities;
+using ClothesShop.Queries;
+using ClothesShop.Queries.ReturnTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClothesShop
@@ -8,102 +10,102 @@ namespace ClothesShop
         private static async Task Main(string[] args)
         {
             Console.WriteLine("Checking LazyLoadingQueries.GetProductsByBrand");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var allProd = await LazyLoadingQueries.GetProductsByBrand(1, dbContext);
-                foreach (var item in allProd)
+                var productsByBrand = await LazyLoadingQueries.GetProductsByBrand(1, dbContext);
+                foreach (var product in productsByBrand)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(product);
                 }
             }
 
             Console.WriteLine("Checking EagerLoadingQueries.GetProductsByBrand");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var allProd = await EagerLoadingQueries.GetProductsByBrand(1, dbContext);
-                foreach (var item in allProd)
+                var productsByBrand = await EagerLoadingQueries.GetProductsByBrand(1, dbContext);
+                foreach (var product in productsByBrand)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(product);
                 }
             }
 
             Console.WriteLine("Checking LazyLoadingQueries.GetBrandsWithProductCount");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var allBrands = await LazyLoadingQueries.GetBrandsWithProductCount(dbContext);
-                foreach (var item in allBrands)
+                var brandsWithProductCount = await LazyLoadingQueries.GetBrandsWithProductCount(dbContext);
+                foreach (var brandWithProductCount in brandsWithProductCount)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(brandWithProductCount);
                 }
             }
 
             Console.WriteLine("Checking EagerLoadingQueries.GetBrandsWithProductCount");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var allBrands = await EagerLoadingQueries.GetBrandsWithProductCount(dbContext);
-                foreach (var item in allBrands)
+                var brandsWithProductCount = await EagerLoadingQueries.GetBrandsWithProductCount(dbContext);
+                foreach (var brandWithProductCount in brandsWithProductCount)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(brandWithProductCount);
                 }
             }
 
             Console.WriteLine("Checking EagerLoadingQueries.GetProductsByCategoryAndSection");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var prods = await EagerLoadingQueries.GetProductsByCategoryAndSection(2, 1, dbContext);
-                foreach (var item in prods)
+                var productsByCategoryAndSection = await EagerLoadingQueries.GetProductsByCategoryAndSection(2, 1, dbContext);
+                foreach (var product in productsByCategoryAndSection)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(product);
                 }
             }
 
             Console.WriteLine("Checking LazyLoadingQueries.GetProductsByCategoryAndSection");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var prods = await LazyLoadingQueries.GetProductsByCategoryAndSection(2, 1, dbContext);
-                foreach (var item in prods)
+                var productsByCategoryAndSection = await LazyLoadingQueries.GetProductsByCategoryAndSection(2, 1, dbContext);
+                foreach (var product in productsByCategoryAndSection)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(product);
                 }
             }
 
             Console.WriteLine("Checking LazyLoadingQueries.GetCompletedOrdersByProduct");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var orders = await LazyLoadingQueries.GetCompletedOrdersByProduct(1, dbContext);
-                foreach (var item in orders)
+                var completeOrders = await LazyLoadingQueries.GetCompletedOrdersByProduct(1, dbContext);
+                foreach (var order in completeOrders)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(order);
                 }
             }
 
             Console.WriteLine("Checking EagerLoadingQueries.GetCompletedOrdersByProduct");
-            using (var dbContext = new ShopdbContext())
+            using (var dbContext = new ShopDbContext())
             {
-                var orders = await EagerLoadingQueries.GetCompletedOrdersByProduct(1, dbContext);
-                foreach (var item in orders)
+                var completeOrders = await EagerLoadingQueries.GetCompletedOrdersByProduct(1, dbContext);
+                foreach (var order in completeOrders)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(order);
                 }
             }
 
-            Console.WriteLine("Checking LazyLoadingQueries.GetCompletedOrdersByProduct");
-            using (var dbContext = new ShopdbContext())
+            Console.WriteLine("Checking LazyLoadingQueries.GetProductReviews");
+            using (var dbContext = new ShopDbContext())
             {
-                var reviews = await LazyLoadingQueries.GetProductReviews(3,dbContext);
-                foreach (var item in reviews)
+                var productReviews = await LazyLoadingQueries.GetProductReviews(3,dbContext);
+                foreach (var review in productReviews)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(review);
                 }
             }
 
-            Console.WriteLine("Checking EagerLoadingQueries.GetCompletedOrdersByProduct");
-            using (var dbContext = new ShopdbContext())
+            Console.WriteLine("Checking EagerLoadingQueries.GetProductReviews");
+            using (var dbContext = new ShopDbContext())
             {
-                var reviews = await EagerLoadingQueries.GetProductReviews(3, dbContext);
-                foreach (var item in reviews)
+                var productReviews = await EagerLoadingQueries.GetProductReviews(3, dbContext);
+                foreach (var review in productReviews)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(review);
                 }
             }
         }

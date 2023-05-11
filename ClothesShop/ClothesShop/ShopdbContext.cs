@@ -4,13 +4,13 @@ using System.Reflection;
 
 namespace ClothesShop;
 
-public class ShopdbContext : DbContext
+public class ShopDbContext : DbContext
 {
-    public ShopdbContext()
+    public ShopDbContext()
     {
     }
 
-    public ShopdbContext(DbContextOptions<ShopdbContext> options)
+    public ShopDbContext(DbContextOptions<ShopDbContext> options)
         : base(options)
     {
     }

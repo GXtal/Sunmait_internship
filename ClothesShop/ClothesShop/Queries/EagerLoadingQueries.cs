@@ -11,6 +11,7 @@ namespace ClothesShop.Queries
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
                 .Where(p => p.BrandId == brandId);
+            //var queryString = query.ToQueryString();
             var products = await query.ToListAsync();
 
             var productInfos = products

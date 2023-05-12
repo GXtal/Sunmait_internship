@@ -4,13 +4,13 @@ using System.Reflection;
 
 namespace ClothesShop;
 
-public class ShopdbContext : DbContext
+public class ShopDbContext : DbContext
 {
-    public ShopdbContext()
+    public ShopDbContext()
     {
     }
 
-    public ShopdbContext(DbContextOptions<ShopdbContext> options)
+    public ShopDbContext(DbContextOptions<ShopDbContext> options)
         : base(options)
     {
     }
@@ -47,7 +47,8 @@ public class ShopdbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=clothesshopdb;Username=postgres;Password=30122002vano");
+        optionsBuilder.LogTo(Console.WriteLine);
+        optionsBuilder.UseLazyLoadingProxies().UseNpgsql("Host=localhost;Port=5432;Database=clothesshopdb;Username=postgres;Password=30122002vano");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -108,6 +108,43 @@ namespace ClothesShop
                     Console.WriteLine(review);
                 }
             }
+
+
+            // Explicit tracking
+
+            Console.WriteLine("Before update");
+            using (var context = new ShopDbContext())
+            {
+                var allProducts = await context.Products.ToListAsync();
+                foreach (var product in allProducts)
+                {
+                    Console.WriteLine($"{product.Id}: {product.Quantity}");
+                }
+            }
+
+            Product changingProduct;
+            using (var context = new ShopDbContext())
+            {
+                changingProduct = context.Products.Single(p => p.Id == 1);
+            }
+
+            changingProduct.Quantity += 5;
+
+            using (var context = new ShopDbContext())
+            {
+                context.Update(changingProduct); 
+                await context.SaveChangesAsync();
+            }
+
+            Console.WriteLine("After update");
+            using (var context = new ShopDbContext())
+            {
+                var allProducts=await context.Products.ToListAsync();
+                foreach (var product in allProducts)
+                {
+                    Console.WriteLine($"{product.Id}: {product.Quantity}");
+                }
+            }
         }
     }
 }

@@ -109,9 +109,7 @@ namespace ClothesShop
                 }
             }
 
-
             // Explicit tracking
-
             Console.WriteLine("Before update");
             using (var context = new ShopDbContext())
             {
@@ -139,7 +137,7 @@ namespace ClothesShop
             Console.WriteLine("After update");
             using (var context = new ShopDbContext())
             {
-                var allProducts=await context.Products.ToListAsync();
+                var allProducts = await context.Products.ToListAsync();
                 foreach (var product in allProducts)
                 {
                     Console.WriteLine($"{product.Id}: {product.Quantity}");

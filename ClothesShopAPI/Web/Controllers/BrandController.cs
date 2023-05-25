@@ -30,7 +30,7 @@ namespace Web.Controllers
         {
             var brand = _brandRepository.GetBrandById(id);
 
-            if(brand == null)
+            if (brand == null)
             {
                 return NotFound();
             }
@@ -56,7 +56,7 @@ namespace Web.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] BrandInput newBrand)
         {
-            bool result = _brandRepository.UpdateBrand(id,newBrand);
+            bool result = _brandRepository.UpdateBrand(id, newBrand);
 
             if (!result)
             {

@@ -6,7 +6,7 @@ public class CategorySection
 
     public int SectionId { get; set; }
 
-    public virtual Category Category { get; set; }
+    public Category Category { get; set; }
 
-    public virtual Section Section { get; set; }
+    public Section Section { get; set; }
 }

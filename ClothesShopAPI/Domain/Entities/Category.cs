@@ -8,11 +8,11 @@ public class Category
 
     public int? ParentCategoryId { get; set; }
 
-    public virtual ICollection<Category> ChildCategories { get; set; }
+    public ICollection<Category> ChildCategories { get; set; }
 
-    public virtual Category ParentCategory { get; set; }
+    public Category ParentCategory { get; set; }
 
-    public virtual ICollection<Product> Products { get; set; }
+    public ICollection<Product> Products { get; set; }
 
-    public virtual ICollection<CategorySection> CategoriesSections { get; set; }
+    public ICollection<CategorySection> CategoriesSections { get; set; }
 }

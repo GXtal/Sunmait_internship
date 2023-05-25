@@ -8,5 +8,5 @@ public class Address
 
     public string FullAddress { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 }

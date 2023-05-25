@@ -1,6 +1,6 @@
-﻿namespace Application.Outputs;
+﻿namespace Web.Models;
 
-public class BrandOutput
+public class BrandViewModel
 {
     public int Id { get; set; }
 

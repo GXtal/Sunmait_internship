@@ -1,6 +1,4 @@
-﻿using Application.Inputs;
-using Application.Interfaces;
-using Application.Outputs;
+﻿using Domain.Interfaces;
 using Domain.Entities;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -16,78 +14,77 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public BrandOutput GetBrandById(int id)
+        public async Task<Brand> GetBrandById(int id)
         {
-            var brand = _dbContext.Brands.Find(id);
-
-            if (brand == null)
-            {
-                return null;
-            }
-
-            return new BrandOutput() { Id = brand.Id, Name = brand.Name };
+            var brand = await _dbContext.Brands.FirstOrDefaultAsync(b => b.Id == id);
+            return brand;
         }
 
-        public IEnumerable<BrandOutput> GetBrands()
+        public async Task<IEnumerable<Brand>> GetBrands()
         {
-            var allBrands = _dbContext.Brands.ToList();
-            var allBrndsSimplified = new List<BrandOutput>();
-
-            foreach (var brand in allBrands)
-            {
-                allBrndsSimplified.Add(new BrandOutput() { Id = brand.Id, Name = brand.Name });
-            }
-
-            return allBrndsSimplified;
+            var allBrands = await _dbContext.Brands.ToListAsync();
+            return allBrands;
         }
 
-        public bool InsertBrand(BrandInput newBrand)
+        public async Task<bool> AddBrand(string newBrandName)
         {
-            var brand = new Brand() { Id = 0, Name = newBrand.Name };
-
-            if (_dbContext.Brands.Any(b => b.Name == newBrand.Name))
+            bool isPresent = await _dbContext.Brands.AnyAsync(b => b.Name == newBrandName);
+            if (isPresent)
             {
                 return false;
             }
 
+            var brand = new Brand() { Name = newBrandName };
             _dbContext.Add(brand);
-            Save();
+            await Save();
 
             return true;
         }
 
-        public bool UpdateBrand(int id, BrandInput newBrand)
+        public async Task<bool> UpdateBrand(int id, string newBrandName)
         {
-            var brand = new Brand() { Id = id, Name = newBrand.Name };
-            if (_dbContext.Brands.Any(b => (b.Name == newBrand.Name) && (b.Id != brand.Id)))
+            var isPresent = await _dbContext.Brands.AnyAsync(b => b.Name == newBrandName);
+            if (isPresent)
             {
                 return false;
             }
 
-            _dbContext.Entry(brand).State = EntityState.Modified;
-            Save();
+            var brand = await _dbContext.Brands.FirstOrDefaultAsync(b => b.Id == id);
+            if (brand == null)
+            {
+                return false;
+            }
+
+            brand.Name = newBrandName;
+            await Save();
 
             return true;
         }
 
-        public bool DeleteBrand(int productId)
+        public async Task<bool> RemoveBrand(int id)
         {
-            var brand = _dbContext.Brands.Find(productId);
+            var brand = await _dbContext.Brands.FirstOrDefaultAsync(b => b.Id == id);
 
             if (brand == null)
+            {
+                return false;
+            }
+
+            var isUsed = await _dbContext.Products.AnyAsync(p => p.BrandId == brand.Id);
+            if (isUsed)
             {
                 return false;
             }
 
             _dbContext.Brands.Remove(brand);
-            Save();
+            await Save();
 
             return true;
         }
 
-        public void Save()
+        public async Task Save()
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -5,5 +5,5 @@ public class Status
 
     public string Name { get; set; }
 
-    public virtual ICollection<OrderHistory> OrderHistories { get; set; }
+    public ICollection<OrderHistory> OrderHistories { get; set; }
 }

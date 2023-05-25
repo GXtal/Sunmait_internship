@@ -10,7 +10,7 @@ public class OrderHistory
 
     public DateTime SetTime { get; set; }
 
-    public virtual Order Order { get; set; }
+    public Order Order { get; set; }
 
-    public virtual Status Status { get; set; }
+    public Status Status { get; set; }
 }

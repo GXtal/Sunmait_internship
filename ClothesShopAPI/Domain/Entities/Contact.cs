@@ -8,5 +8,5 @@ public class Contact
 
     public string PhoneNumber { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 }

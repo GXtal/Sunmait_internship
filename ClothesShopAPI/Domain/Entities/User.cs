@@ -14,13 +14,13 @@ public class User
 
     public string Surname { get; set; }
 
-    public virtual ICollection<Address> Addresses { get; set; }
+    public ICollection<Address> Addresses { get; set; }
 
-    public virtual ICollection<Contact> Contacts { get; set; }
+    public ICollection<Contact> Contacts { get; set; }
 
-    public virtual ICollection<Order> Orders { get; set; }
+    public ICollection<Order> Orders { get; set; }
 
-    public virtual ICollection<Review> Reviews { get; set; }
+    public ICollection<Review> Reviews { get; set; }
 
-    public virtual Role Role { get; set; }
+    public Role Role { get; set; }
 }

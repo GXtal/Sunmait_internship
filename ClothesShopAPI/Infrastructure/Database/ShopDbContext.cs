@@ -45,11 +45,6 @@ namespace Infrastructure.Database
 
         public virtual DbSet<CategorySection> CategoriesSections { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=clothesshopdb;Username=postgres;Password=30122002vano");
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

@@ -8,9 +8,9 @@ public class Order
 
     public decimal TotalCost { get; set; }
 
-    public virtual ICollection<OrderHistory> OrderHistories { get; set; }
+    public ICollection<OrderHistory> OrderHistories { get; set; }
 
-    public virtual ICollection<OrderProduct> OrdersProducts { get; set; }
+    public ICollection<OrderProduct> OrdersProducts { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 }

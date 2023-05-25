@@ -16,13 +16,13 @@ public class Product
 
     public int BrandId { get; set; }
 
-    public virtual Brand Brand { get; set; }
+    public Brand Brand { get; set; }
 
-    public virtual Category Category { get; set; }
+    public Category Category { get; set; }
 
-    public virtual ICollection<Image> Images { get; set; }
+    public ICollection<Image> Images { get; set; }
 
-    public virtual ICollection<OrderProduct> OrdersProducts { get; set; }
+    public ICollection<OrderProduct> OrdersProducts { get; set; }
 
-    public virtual ICollection<Review> Reviews { get; set; }
+    public ICollection<Review> Reviews { get; set; }
 }

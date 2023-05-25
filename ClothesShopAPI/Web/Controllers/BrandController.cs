@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Application.Interfaces;
-using Application.Inputs;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Domain.Interfaces;
+using Web.Models;
 
 namespace Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Brands")]
     [ApiController]
     public class BrandController : ControllerBase
     {
@@ -16,33 +15,41 @@ namespace Web.Controllers
             _brandRepository = brandRepository;
         }
 
-        // GET: api/<BrandsController>
+        // GET: api/Brands
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var allBrands = _brandRepository.GetBrands();
-            return new OkObjectResult(allBrands);
+            var allBrands = await _brandRepository.GetBrands();
+
+            var allBrandsSimplified = new List<BrandViewModel>();
+            foreach (var brand in allBrands)
+            {
+                allBrandsSimplified.Add(new BrandViewModel { Id = brand.Id, Name = brand.Name });
+            }
+
+            return new OkObjectResult(allBrandsSimplified);
         }
 
-        // GET api/<BrandsController>/5
+        // GET api/Brands/5
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var brand = _brandRepository.GetBrandById(id);
+            var brand = await _brandRepository.GetBrandById(id);
 
             if (brand == null)
             {
                 return NotFound();
             }
 
-            return new OkObjectResult(brand);
+            var brandSimplified = new BrandViewModel() { Id = brand.Id, Name = brand.Name };
+            return new OkObjectResult(brandSimplified);
         }
 
-        // POST api/<BrandsController>
+        // POST api/Brands
         [HttpPost]
-        public IActionResult Post([FromBody] BrandInput newBrand)
+        public async Task<IActionResult> Post([FromBody] BrandInputModel newBrand)
         {
-            bool result = _brandRepository.InsertBrand(newBrand);
+            bool result = await _brandRepository.AddBrand(newBrand.Name);
 
             if (!result)
             {
@@ -52,11 +59,11 @@ namespace Web.Controllers
             return new OkResult();
         }
 
-        // PUT api/<BrandsController>/5
+        // PUT api/Brands/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] BrandInput newBrand)
+        public async Task<IActionResult> Put(int id, [FromBody] BrandInputModel newBrand)
         {
-            bool result = _brandRepository.UpdateBrand(id, newBrand);
+            bool result = await _brandRepository.UpdateBrand(id, newBrand.Name);
 
             if (!result)
             {
@@ -66,15 +73,15 @@ namespace Web.Controllers
             return new OkResult();
         }
 
-        // DELETE api/<BrandsController>/5
+        // DELETE api/Brands/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            bool result = _brandRepository.DeleteBrand(id);
+            bool result = await _brandRepository.RemoveBrand(id);
 
             if (!result)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return new OkResult();

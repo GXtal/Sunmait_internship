@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Infrastructure.Database;
-using Application.Outputs;
 using Application.Interfaces;
-using Domain.Entities;
 using Application.Inputs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,7 +9,6 @@ namespace Web.Controllers
     [ApiController]
     public class BrandController : ControllerBase
     {
-
         private readonly IBrandRepository _brandRepository;
 
         public BrandController(IBrandRepository brandRepository)
@@ -24,7 +20,7 @@ namespace Web.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var allBrands=_brandRepository.GetBrands();
+            var allBrands = _brandRepository.GetBrands();
             return new OkObjectResult(allBrands);
         }
 
@@ -33,10 +29,12 @@ namespace Web.Controllers
         public IActionResult Get(int id)
         {
             var brand = _brandRepository.GetBrandById(id);
-            if(brand==null)
+
+            if(brand == null)
             {
                 return NotFound();
             }
+
             return new OkObjectResult(brand);
         }
 
@@ -44,8 +42,13 @@ namespace Web.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] BrandInput newBrand)
         {
-            bool result= _brandRepository.InsertBrand(newBrand);
-            if(!result) { return BadRequest(); }
+            bool result = _brandRepository.InsertBrand(newBrand);
+
+            if (!result)
+            {
+                return BadRequest();
+            }
+
             return new OkResult();
         }
 
@@ -54,7 +57,12 @@ namespace Web.Controllers
         public IActionResult Put(int id, [FromBody] BrandInput newBrand)
         {
             bool result = _brandRepository.UpdateBrand(id,newBrand);
-            if(!result) { return BadRequest(); }
+
+            if (!result)
+            {
+                return BadRequest();
+            }
+
             return new OkResult();
         }
 
@@ -63,7 +71,12 @@ namespace Web.Controllers
         public IActionResult Delete(int id)
         {
             bool result = _brandRepository.DeleteBrand(id);
-            if(!result) { return NotFound(); }
+
+            if (!result)
+            {
+                return NotFound();
+            }
+
             return new OkResult();
         }
     }

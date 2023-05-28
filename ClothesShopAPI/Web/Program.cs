@@ -1,15 +1,19 @@
-using Domain.Interfaces;
 using Infrastructure.Database;
 using Infrastructure.Repositories;
+using Application.Services;
 using Microsoft.EntityFrameworkCore;
+using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbConnection")));
 // Add injections
+builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
 builder.Services.AddTransient<ShopDbContext, ShopDbContext>();
+builder.Services.AddTransient<IBrandService, BrandService>();
 
 builder.Services.AddControllers();
 

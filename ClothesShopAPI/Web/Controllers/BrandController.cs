@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Domain.Interfaces;
 using Web.Models;
+using Domain.Interfaces.Services;
 
 namespace Web.Controllers
 {
@@ -8,18 +8,18 @@ namespace Web.Controllers
     [ApiController]
     public class BrandController : ControllerBase
     {
-        private readonly IBrandRepository _brandRepository;
+        private readonly IBrandService _brandService;
 
-        public BrandController(IBrandRepository brandRepository)
+        public BrandController(IBrandService brandService)
         {
-            _brandRepository = brandRepository;
+            _brandService = brandService;
         }
 
         // GET: api/Brands
         [HttpGet]
         public async Task<IActionResult> GetBrands()
         {
-            var allBrands = await _brandRepository.GetBrands();
+            var allBrands = await _brandService.GetBrands();
 
             var result = new List<BrandViewModel>();
             foreach (var brand in allBrands)
@@ -34,7 +34,7 @@ namespace Web.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBrandById(int id)
         {
-            var brand = await _brandRepository.GetBrandById(id);
+            var brand = await _brandService.GetBrand(id);
 
             if (brand == null)
             {
@@ -49,7 +49,7 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddBrand([FromBody] BrandInputModel newBrand)
         {
-            bool result = await _brandRepository.AddBrand(newBrand.Name);
+            bool result = await _brandService.AddBrand(newBrand.Name);
 
             if (!result)
             {
@@ -63,7 +63,7 @@ namespace Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBrand(int id, [FromBody] BrandInputModel newBrand)
         {
-            bool result = await _brandRepository.UpdateBrand(id, newBrand.Name);
+            bool result = await _brandService.UpdateBrand(id, newBrand.Name);
 
             if (!result)
             {
@@ -77,7 +77,7 @@ namespace Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveBrand(int id)
         {
-            bool result = await _brandRepository.RemoveBrand(id);
+            bool result = await _brandService.RemoveBrand(id);
 
             if (!result)
             {

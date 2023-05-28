@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Exceptions;
+using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 
@@ -18,6 +19,10 @@ namespace Application.Services
         public async Task<Brand> GetBrand(int id)
         {
             var brand = await _brandRepository.GetBrandById(id);
+            if (brand == null)
+            {
+                throw new BrandNotFoundException($"Brand with id={id} is not found");
+            }
             return brand;
         }
 
@@ -32,7 +37,7 @@ namespace Application.Services
             var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
             if (existingBrand != null)
             {
-                return false;
+                throw new ExistingBrandNameException($"Can't add brand with name={newBrandName}.Brand with this name already exists");
             }
 
             var newBrand = new Brand { Name = newBrandName };
@@ -43,17 +48,17 @@ namespace Application.Services
 
         public async Task<bool> UpdateBrand(int id, string newBrandName)
         {
-            var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
-            if (existingBrand != null)
-            {
-                return false;
-            }
-
             var updatedBrand = await _brandRepository.GetBrandById(id);
             if (updatedBrand == null)
             {
-                return false;
+                throw new BrandNotFoundException($"Brand with id={id} is not found");
             }
+
+            var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
+            if (existingBrand != null)
+            {
+                throw new ExistingBrandNameException($"Can't rename brand to name={newBrandName}.Brand with this name already exists");
+            }            
 
             updatedBrand.Name = newBrandName;
             await _brandRepository.UpdateBrand(updatedBrand);
@@ -66,13 +71,13 @@ namespace Application.Services
             var removedBrand = await _brandRepository.GetBrandById(id);
             if (removedBrand == null)
             {
-                return false;
+                throw new BrandNotFoundException($"Brand with id={id} is not found");
             }
 
             var products = await _productRepository.GetProductsByBrand(removedBrand);
             if(products.Count()>0)
             {
-                return false;
+                throw new BrandInUseException($"Can't remove brand with id={id}. This brand is used by products");
             }
 
             await _brandRepository.RemoveBrand(removedBrand);

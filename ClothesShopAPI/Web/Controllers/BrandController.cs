@@ -35,12 +35,6 @@ namespace Web.Controllers
         public async Task<IActionResult> GetBrandById(int id)
         {
             var brand = await _brandService.GetBrand(id);
-
-            if (brand == null)
-            {
-                return NotFound();
-            }
-
             var result = new BrandViewModel() { Id = brand.Id, Name = brand.Name };
             return new OkObjectResult(result);
         }
@@ -49,13 +43,7 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddBrand([FromBody] BrandInputModel newBrand)
         {
-            bool result = await _brandService.AddBrand(newBrand.Name);
-
-            if (!result)
-            {
-                return BadRequest();
-            }
-
+            await _brandService.AddBrand(newBrand.Name);
             return new OkResult();
         }
 
@@ -63,13 +51,7 @@ namespace Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBrand(int id, [FromBody] BrandInputModel newBrand)
         {
-            bool result = await _brandService.UpdateBrand(id, newBrand.Name);
-
-            if (!result)
-            {
-                return BadRequest();
-            }
-
+            await _brandService.UpdateBrand(id, newBrand.Name);
             return new OkResult();
         }
 
@@ -77,13 +59,7 @@ namespace Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveBrand(int id)
         {
-            bool result = await _brandService.RemoveBrand(id);
-
-            if (!result)
-            {
-                return BadRequest();
-            }
-
+            await _brandService.RemoveBrand(id);
             return new OkResult();
         }
     }

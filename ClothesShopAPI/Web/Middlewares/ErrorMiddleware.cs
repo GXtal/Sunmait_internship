@@ -1,7 +1,6 @@
 ﻿using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Text.Json;
 
 namespace Web.Middlewares;
 
@@ -57,7 +56,5 @@ public class ErrorMiddleware : IMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             throw ex;
         }
-
-
     }
 }

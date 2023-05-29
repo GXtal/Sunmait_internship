@@ -12,40 +12,27 @@ public class ErrorMiddleware : IMiddleware
         {
             await next(context);
         }
-        catch (BrandInUseException ex)
+        catch (BadRequestException ex)
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
             ProblemDetails details = new ProblemDetails()
             {
                 Status = (int)HttpStatusCode.BadRequest,
-                Title = "Brand is in use",
+                Title = "Bad request",
                 Detail = ex.Message,
             };
 
             await context.Response.WriteAsJsonAsync(details);
         }
-        catch (ExistingBrandNameException ex)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-            ProblemDetails details = new ProblemDetails()
-            {
-                Status = (int)HttpStatusCode.BadRequest,
-                Title = "Brand with this name already exists",
-                Detail = ex.Message,
-            };
-
-            await context.Response.WriteAsJsonAsync(details);
-        }
-        catch (BrandNotFoundException ex)
+        catch (NotFoundException ex)
         {
             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
             ProblemDetails details = new ProblemDetails()
             {
                 Status = (int)HttpStatusCode.NotFound,
-                Title = "Brand not found",
+                Title = "Not found",
                 Detail = ex.Message,
             };
 

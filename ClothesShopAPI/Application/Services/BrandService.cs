@@ -21,7 +21,7 @@ namespace Application.Services
             var brand = await _brandRepository.GetBrandById(id);
             if (brand == null)
             {
-                throw new BrandNotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException($"Brand with id={id} is not found");
             }
             return brand;
         }
@@ -37,7 +37,7 @@ namespace Application.Services
             var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
             if (existingBrand != null)
             {
-                throw new ExistingBrandNameException($"Can't add brand with name={newBrandName}.Brand with this name already exists");
+                throw new BadRequestException($"Can't add brand with name={newBrandName}.Brand with this name already exists");
             }
 
             var newBrand = new Brand { Name = newBrandName };
@@ -48,39 +48,39 @@ namespace Application.Services
 
         public async Task<bool> UpdateBrand(int id, string newBrandName)
         {
-            var updatedBrand = await _brandRepository.GetBrandById(id);
-            if (updatedBrand == null)
+            var brand = await _brandRepository.GetBrandById(id);
+            if (brand == null)
             {
-                throw new BrandNotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException($"Brand with id={id} is not found");
             }
 
             var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
             if (existingBrand != null)
             {
-                throw new ExistingBrandNameException($"Can't rename brand to name={newBrandName}.Brand with this name already exists");
-            }            
+                throw new BadRequestException($"Can't rename brand to name={newBrandName}.Brand with this name already exists");
+            }
 
-            updatedBrand.Name = newBrandName;
-            await _brandRepository.UpdateBrand(updatedBrand);
+            brand.Name = newBrandName;
+            await _brandRepository.UpdateBrand(brand);
 
             return true;
         }
 
         public async Task<bool> RemoveBrand(int id)
         {
-            var removedBrand = await _brandRepository.GetBrandById(id);
-            if (removedBrand == null)
+            var brand = await _brandRepository.GetBrandById(id);
+            if (brand == null)
             {
-                throw new BrandNotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException($"Brand with id={id} is not found");
             }
 
-            var products = await _productRepository.GetProductsByBrand(removedBrand);
-            if(products.Count()>0)
+            var products = await _productRepository.GetProductsByBrand(brand);
+            if (products.Count() > 0)
             {
-                throw new BrandInUseException($"Can't remove brand with id={id}. This brand is used by products");
+                throw new BadRequestException($"Can't remove brand with id={id}. This brand is used by products");
             }
 
-            await _brandRepository.RemoveBrand(removedBrand);
+            await _brandRepository.RemoveBrand(brand);
 
             return true;
         }

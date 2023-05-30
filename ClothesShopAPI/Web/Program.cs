@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Web.Middlewares;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 var builder = WebApplication.CreateBuilder(args);
 

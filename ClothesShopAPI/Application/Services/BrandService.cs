@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Exceptions.Messages;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
@@ -21,7 +22,7 @@ namespace Application.Services
             var brand = await _brandRepository.GetBrandById(id);
             if (brand == null)
             {
-                throw new NotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException(String.Format(BrandExceptionsMessages.BrandNotFound, id));
             }
             return brand;
         }
@@ -37,7 +38,7 @@ namespace Application.Services
             var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
             if (existingBrand != null)
             {
-                throw new BadRequestException($"Can't add brand with name={newBrandName}.Brand with this name already exists");
+                throw new BadRequestException(String.Format(BrandExceptionsMessages.BrandNameExists, newBrandName));
             }
 
             var newBrand = new Brand { Name = newBrandName };
@@ -51,13 +52,13 @@ namespace Application.Services
             var brand = await _brandRepository.GetBrandById(id);
             if (brand == null)
             {
-                throw new NotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException(String.Format(BrandExceptionsMessages.BrandNotFound, id));
             }
 
             var existingBrand = await _brandRepository.GetBrandByName(newBrandName);
             if (existingBrand != null)
             {
-                throw new BadRequestException($"Can't rename brand to name={newBrandName}.Brand with this name already exists");
+                throw new BadRequestException(String.Format(BrandExceptionsMessages.BrandNameExists, newBrandName));
             }
 
             brand.Name = newBrandName;
@@ -71,13 +72,13 @@ namespace Application.Services
             var brand = await _brandRepository.GetBrandById(id);
             if (brand == null)
             {
-                throw new NotFoundException($"Brand with id={id} is not found");
+                throw new NotFoundException(String.Format(BrandExceptionsMessages.BrandNotFound, id));
             }
 
             var products = await _productRepository.GetProductsByBrand(brand);
             if (products.Count() > 0)
             {
-                throw new BadRequestException($"Can't remove brand with id={id}. This brand is used by products");
+                throw new BadRequestException(String.Format(BrandExceptionsMessages.BrandIsUsed, id));
             }
 
             await _brandRepository.RemoveBrand(brand);

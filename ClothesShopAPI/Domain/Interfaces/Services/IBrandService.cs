@@ -8,9 +8,9 @@ public interface IBrandService
 
     public Task<IEnumerable<Brand>> GetBrands();
 
-    public Task<bool> AddBrand(string newBrandName);
+    public Task AddBrand(string newBrandName);
 
-    public Task<bool> UpdateBrand(int id, string newBrandName);
+    public Task UpdateBrand(int id, string newBrandName);
 
-    public Task<bool> RemoveBrand(int id);
+    public Task RemoveBrand(int id);
 }

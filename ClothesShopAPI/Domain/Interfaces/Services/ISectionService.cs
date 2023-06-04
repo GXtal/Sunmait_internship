@@ -10,7 +10,7 @@ public interface ISectionService
 
     public Task AddSection(string newSectionName);
 
-    public Task UpdateSection(int id, string newSectionName);
+    public Task RenameSection(int id, string newSectionName);
 
     public Task RemoveSection(int id);
 }

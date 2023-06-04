@@ -45,7 +45,7 @@ public class BrandService : IBrandService
         await _brandRepository.AddBrand(brand);
     }
 
-    public async Task UpdateBrand(int id, string newBrandName)
+    public async Task RenameBrand(int id, string newBrandName)
     {
         var brand = await _brandRepository.GetBrandById(id);
         if (brand == null)

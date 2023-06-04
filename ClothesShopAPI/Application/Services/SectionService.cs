@@ -61,7 +61,7 @@ public class SectionService : ISectionService
         await _sectionRepository.RemoveSection(section);
     }
 
-    public async Task UpdateSection(int id, string newSectionName)
+    public async Task RenameSection(int id, string newSectionName)
     {
         var section = await _sectionRepository.GetSectionById(id);
         if (section == null)

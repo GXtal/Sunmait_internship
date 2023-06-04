@@ -10,7 +10,7 @@ public interface IBrandService
 
     public Task AddBrand(string newBrandName);
 
-    public Task UpdateBrand(int id, string newBrandName);
+    public Task RenameBrand(int id, string newBrandName);
 
     public Task RemoveBrand(int id);
 }

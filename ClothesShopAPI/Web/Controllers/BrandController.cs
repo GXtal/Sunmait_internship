@@ -51,7 +51,7 @@ public class BrandController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] int id, [FromBody] BrandInputModel newBrand)
     {
-        await _brandService.UpdateBrand(id, newBrand.Name);
+        await _brandService.RenameBrand(id, newBrand.Name);
         return new OkResult();
     }
 

@@ -3,7 +3,7 @@
 namespace Domain.Interfaces.Repositories;
 public interface ICategoryRepository
 {
-    public Task AddCategory(Category category);
+    public Task<Category> AddCategory(Category category);
     public Task<IEnumerable<Category>> GetCategoriesByParent(int parentId);
     public Task<Category> GetCategoryById(int id);
     public Task<Category> GetCategoryByName(string newCategoryName);

@@ -32,10 +32,11 @@ public class BrandRepository : IBrandRepository
         return allBrands;
     }
 
-    public async Task AddBrand(Brand brand)
+    public async Task<Brand> AddBrand(Brand brand)
     {
         _dbContext.Add(brand);
         await Save();
+        return brand;
     }
 
     public async Task UpdateBrand(Brand brand)

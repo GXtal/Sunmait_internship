@@ -19,4 +19,10 @@ public class ProductRepository : IProductRepository
         var products = await _dbContext.Products.Where(p => p.BrandId == brand.Id).ToListAsync();
         return products;
     }
+
+    public async Task<IEnumerable<Product>> GetProductsByCategory(Category category)
+    {
+        var products = await _dbContext.Products.Where(p => p.CategoryId == category.Id).ToListAsync();
+        return products;
+    }
 }

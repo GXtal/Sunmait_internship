@@ -10,7 +10,7 @@ public interface ISectionRepository
 
     public Task<IEnumerable<Section>> GetSections();
 
-    public Task AddSection(Section section);
+    public Task<Section> AddSection(Section section);
 
     public Task UpdateSection(Section section);
 

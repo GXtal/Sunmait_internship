@@ -36,7 +36,7 @@ public class CategoryService : ICategoryService
 
     public async Task<IEnumerable<Category>> GetCategories()
     {
-        var categories = await _categoryRepository.GetCategorys();
+        var categories = await _categoryRepository.GetCategories();
         return categories;
     }
 
@@ -91,7 +91,7 @@ public class CategoryService : ICategoryService
             throw new BadRequestException(String.Format(CategorySectionExceptionsMessages.CategorySectionExists, id, sectionId));
         }
 
-        var categorySection = new CategorySection() { CaregoryId = id, SectionId = sectionId };
+        var categorySection = new CategorySection() { CategoryId = id, SectionId = sectionId };
         await _categorySectionRepository.AddCategorySection(categorySection);
     }
 

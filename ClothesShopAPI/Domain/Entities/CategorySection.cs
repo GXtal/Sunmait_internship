@@ -2,7 +2,7 @@
 
 public class CategorySection
 {
-    public int CaregoryId { get; set; }
+    public int CategoryId { get; set; }
 
     public int SectionId { get; set; }
 

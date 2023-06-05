@@ -5,6 +5,7 @@ using Application.Exceptions.Messages;
 using Application.Exceptions;
 
 namespace Application.Services;
+
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;

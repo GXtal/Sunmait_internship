@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Domain.Interfaces.Repositories;
+
 public interface IOrderRepository
 {
     public Task<Order> GetOrderById(int id);

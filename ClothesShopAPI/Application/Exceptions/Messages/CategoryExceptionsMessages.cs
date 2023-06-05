@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions.Messages;
+
 public class CategoryExceptionsMessages
 {
     public const string CategoryNotFound = "Category with id={0} is not found";

@@ -1,5 +1,7 @@
 ﻿using Domain.Entities;
+
 namespace Domain.Interfaces.Services;
+
 public interface IImageService
 {
     public Task<Image> GetImage(int id);

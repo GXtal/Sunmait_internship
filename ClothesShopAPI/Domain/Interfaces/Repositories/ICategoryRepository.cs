@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 
 namespace Domain.Interfaces.Repositories;
+
 public interface ICategoryRepository
 {
     public Task<Category> AddCategory(Category category);

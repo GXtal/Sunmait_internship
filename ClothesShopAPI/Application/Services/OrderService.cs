@@ -5,6 +5,7 @@ using Application.Exceptions;
 using Application.Exceptions.Messages;
 
 namespace Application.Services;
+
 public class OrderService : IOrderService
 {
     public const int AwaitingConfirmation = 1;

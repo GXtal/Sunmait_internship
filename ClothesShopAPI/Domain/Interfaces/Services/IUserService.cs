@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 
 namespace Domain.Interfaces.Services;
+
 public interface IUserService
 {
     public Task<User> Register(string email, string passwordHash);

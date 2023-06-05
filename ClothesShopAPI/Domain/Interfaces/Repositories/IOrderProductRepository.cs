@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 
 namespace Domain.Interfaces.Repositories;
+
 public interface IOrderProductRepository
 {
     public Task<OrderProduct> AddOrderProduct(OrderProduct orderProduct);

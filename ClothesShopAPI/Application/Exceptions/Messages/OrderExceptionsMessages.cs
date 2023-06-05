@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions.Messages;
+
 public class OrderExceptionsMessages
 {
     public const string OrderNotFound = "Order with id={0} is not found";

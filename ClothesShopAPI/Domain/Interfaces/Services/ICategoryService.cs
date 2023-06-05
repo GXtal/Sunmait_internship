@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 
 namespace Domain.Interfaces.Services;
+
 public interface ICategoryService
 {
     public Task<Category> GetCategory(int id);

@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions.Messages;
+
 public class ProductExceptionsMessages
 {
     public const string ProductNotFound = "Product with id={0} is not found";

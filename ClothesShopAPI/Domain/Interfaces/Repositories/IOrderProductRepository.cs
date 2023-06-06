@@ -8,6 +8,8 @@ public interface IOrderProductRepository
 
     public Task<OrderProduct> GetOrderProduct(Order order, Product product);
 
+    public Task<IEnumerable<OrderProduct>> GetOrderProductsByOrder(Order order);
+
     public Task RemoveOrderProduct(OrderProduct orderProduct);
 
     public Task UpdateOrderProduct(OrderProduct orderProduct);

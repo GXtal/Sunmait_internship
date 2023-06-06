@@ -98,7 +98,7 @@ public class OrderService : IOrderService
         await _orderRepository.UpdateOrder(order);
     }
 
-    public async Task AddOrder(int userId)
+    public async Task<Order> AddOrder(int userId)
     {
         var user = await _userRepository.GetUserById(userId);
         if (user == null)
@@ -111,6 +111,8 @@ public class OrderService : IOrderService
 
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
+
+        return order;
     }
 
     public async Task<Order> GetOrder(int id)
@@ -184,5 +186,17 @@ public class OrderService : IOrderService
         await _productRepository.UpdateProduct(product);
 
         await _orderProductRepository.RemoveOrderProduct(orderProduct);
-    }    
+    }
+
+    public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id)
+    {
+        var order = await _orderRepository.GetOrderById(id);
+        if (order == null)
+        {
+            throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
+        }
+
+        var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);
+        return orderProducts;
+    }
 }

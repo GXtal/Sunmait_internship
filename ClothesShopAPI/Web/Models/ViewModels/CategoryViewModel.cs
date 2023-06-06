@@ -1,6 +1,6 @@
-﻿namespace Web.Models;
+﻿namespace Web.Models.ViewModels;
 
-public class BrandViewModel
+public class CategoryViewModel
 {
     public int Id { get; set; }
 

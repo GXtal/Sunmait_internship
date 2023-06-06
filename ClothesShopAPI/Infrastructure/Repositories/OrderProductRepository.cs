@@ -2,7 +2,6 @@
 using Domain.Interfaces.Repositories;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Infrastructure.Repositories;
 
@@ -43,5 +42,12 @@ public class OrderProductRepository : IOrderProductRepository
     public async Task Save()
     {
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<OrderProduct>> GetOrderProductsByOrder(Order order)
+    {
+        var orderProducts = await _dbContext.OrdersProducts.
+            Where(cs => cs.OrderId == order.Id).ToListAsync();
+        return orderProducts;
     }
 }

@@ -10,7 +10,9 @@ public interface IOrderService
 
     public Task<IEnumerable<OrderHistory>> GetOrderHistory(int id);
 
-    public Task AddOrder(int userId);
+    public Task<Order> AddOrder(int userId);
+
+    public Task<IEnumerable<OrderProduct>> GetOrderProducts(int id);
 
     public Task AddProductToOrder(int id, int productId, int count);
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Web.Models;
 using Domain.Interfaces.Services;
+using Web.Models.InputModels;
+using Web.Models.ViewModels;
 
 namespace Web.Controllers;
 

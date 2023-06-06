@@ -15,8 +15,33 @@ builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(builder.Configurat
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
+builder.Services.AddTransient<ISectionRepository, SectionRepository>();
+builder.Services.AddTransient<IAddressRepository, AddressRepository>();
+builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
+builder.Services.AddTransient<ICategorySectionRepository, CategorySectionRepository>();
+builder.Services.AddTransient<IContactRepository, ContactRepository>();
+builder.Services.AddTransient<IOrderHistoryRepository, OrderHistoryRepository>();
+builder.Services.AddTransient<IOrderProductRepository, OrderProductRepository>();
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
+builder.Services.AddTransient<IRoleRepository, RoleRepository>();
+builder.Services.AddTransient<IStatusRepository, StatusRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+
 builder.Services.AddTransient<ShopDbContext>();
+
 builder.Services.AddTransient<IBrandService, BrandService>();
+builder.Services.AddTransient<IAddressService, AddressService>();
+builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddTransient<IContactService, ContactService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
+builder.Services.AddTransient<IProductService, ProductService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<ISectionService, SectionService>();
+builder.Services.AddTransient<IStatusService, StatusService>();
+builder.Services.AddTransient<IUserService, UserService>();
+
 builder.Services.AddTransient<ErrorMiddleware>();
 
 builder.Services.AddControllers();

@@ -62,7 +62,7 @@ public class OrderService : IOrderService
         history = history.OrderByDescending(h => h.SetTime);
 
         var currentStatus = history.First();
-        
+
         if (currentStatus.StatusId != AwaitingConfirmation)
         {
             throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id));
@@ -74,12 +74,12 @@ public class OrderService : IOrderService
             throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, id));
         }
 
-        if(product.Quantity < count)
+        if (product.Quantity < count)
         {
             throw new BadRequestException(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, id));
         }
 
-        var existingOrderProduct =await  _orderProductRepository.GetOrderProduct(order, product);
+        var existingOrderProduct = await _orderProductRepository.GetOrderProduct(order, product);
         if (existingOrderProduct == null)
         {
             var orderProduct = new OrderProduct() { OrderId = id, ProductId = productId, Count = count };
@@ -90,8 +90,8 @@ public class OrderService : IOrderService
             existingOrderProduct.Count += count;
             await _orderProductRepository.UpdateOrderProduct(existingOrderProduct);
         }
-        
-        product.Quantity -= count;        
+
+        product.Quantity -= count;
         await _productRepository.UpdateProduct(product);
 
         order.TotalCost += count * product.Price;

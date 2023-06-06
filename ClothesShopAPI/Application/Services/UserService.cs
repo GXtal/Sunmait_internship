@@ -35,7 +35,7 @@ public class UserService : IUserService
             throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotExist, email));
         }
 
-        if(user.PasswordHash != passwordHash)
+        if (user.PasswordHash != passwordHash)
         {
             throw new NotAuthorizedException(UserExceptionsMessages.WrongPassword);
         }
@@ -53,8 +53,8 @@ public class UserService : IUserService
 
         var user = new User() { Email = email, PasswordHash = passwordHash, Name = name, Surname = surname, RoleId = UserRole };
         user = await _userRepository.AddUser(user);
-        return user;   
-        
+        return user;
+
     }
 
     public async Task SetUserInfo(int id, string name, string surname)

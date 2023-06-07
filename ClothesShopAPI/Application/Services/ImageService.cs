@@ -24,7 +24,7 @@ public class ImageService : IImageService
         {
             throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, productId));
         }
-        
+
         var image = new Image() { ProductId = productId, Path = newImagePath };
         await _imageRepository.AddImage(image);
     }

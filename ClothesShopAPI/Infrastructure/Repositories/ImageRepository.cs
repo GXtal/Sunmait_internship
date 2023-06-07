@@ -28,7 +28,7 @@ public class ImageRepository : IImageRepository
 
     public async Task<IEnumerable<Image>> GetImagesByProduct(Product product)
     {
-        var allImages= await _dbContext.Images.Where(p => p.ProductId == product.Id).ToListAsync();
+        var allImages = await _dbContext.Images.Where(p => p.ProductId == product.Id).ToListAsync();
         return allImages;
     }
 

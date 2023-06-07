@@ -40,16 +40,6 @@ public class CategoryService : ICategoryService
         return categories;
     }
 
-    public async Task<Category> GetCategory(int id)
-    {
-        var category = await _categoryRepository.GetCategoryById(id);
-        if (category == null)
-        {
-            throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, id));
-        }
-        return category;
-    }
-
     public async Task LinkCategoryToParent(int id, int parentId)
     {
         var category = await _categoryRepository.GetCategoryById(id);

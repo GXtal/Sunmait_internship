@@ -8,6 +8,8 @@ public class UserViewModel
 
     public int RoleId { get; set; }
 
+    public string RoleName { get; set; }
+
     public string Name { get; set; }
 
     public string Surname { get; set; }

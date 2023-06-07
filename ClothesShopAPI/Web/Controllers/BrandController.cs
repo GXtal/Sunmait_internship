@@ -16,7 +16,7 @@ public class BrandController : ControllerBase
         _brandService = brandService;
     }
 
-    // GET: api/Brands
+    // GET api/Brands
     [HttpGet]
     public async Task<IActionResult> GetBrands()
     {
@@ -28,15 +28,6 @@ public class BrandController : ControllerBase
             result.Add(new BrandViewModel { Id = brand.Id, Name = brand.Name });
         }
 
-        return new OkObjectResult(result);
-    }
-
-    // GET api/Brands/5
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetBrandById([FromRoute] int id)
-    {
-        var brand = await _brandService.GetBrand(id);
-        var result = new BrandViewModel() { Id = brand.Id, Name = brand.Name };
         return new OkObjectResult(result);
     }
 

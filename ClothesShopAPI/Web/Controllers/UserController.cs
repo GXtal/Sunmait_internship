@@ -29,7 +29,15 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetUserById([FromRoute] int id)
     {
         var user = await _userService.GetUserInfo(id);
-        var result = new UserViewModel() { Id = user.Id, Name = user.Name, Surname = user.Surname, Email = user.Email, RoleId = user.RoleId };
+        var result = new UserViewModel()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Surname = user.Surname,
+            Email = user.Email,
+            RoleId = user.RoleId,
+            RoleName = user.Role.Name,
+        };
         return new OkObjectResult(result);
     }
 
@@ -38,7 +46,15 @@ public class UserController : ControllerBase
     public async Task<IActionResult> LoginUser([FromBody] LoginInputModel credentials)
     {
         var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
-        var result = new UserViewModel() { Id = user.Id, Name = user.Name, Surname = user.Surname, Email = user.Email, RoleId = user.RoleId };
+        var result = new UserViewModel()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Surname = user.Surname,
+            Email = user.Email,
+            RoleId = user.RoleId,
+            RoleName = user.Role.Name,
+        };
         return new OkObjectResult(result);
     }
 
@@ -47,7 +63,15 @@ public class UserController : ControllerBase
     public async Task<IActionResult> RegisterUser([FromBody] RegisterInputModel credentials)
     {
         var user = await _userService.Register(credentials.Email, credentials.PasswordHash, credentials.Name, credentials.Surname);
-        var result = new UserViewModel() { Id = user.Id, Name = user.Name, Surname = user.Surname, Email = user.Email, RoleId = user.RoleId };
+        var result = new UserViewModel()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Surname = user.Surname,
+            Email = user.Email,
+            RoleId = user.RoleId,
+            RoleName = user.Role.Name,
+        };
         return new OkObjectResult(result);
     }
 
@@ -57,30 +81,6 @@ public class UserController : ControllerBase
     {
         await _userService.SetUserInfo(id, credentials.Name, credentials.Surname);
         return new OkResult();
-    }
-
-    // GET: api/Users/5/Orders
-    [HttpGet("{userId}/Orders")]
-    public async Task<IActionResult> GetOrders([FromRoute] int userId)
-    {
-        var allOrders = await _orderService.GetOrders(userId);
-
-        var result = new List<OrderViewModel>();
-        foreach (var order in allOrders)
-        {
-            result.Add(new OrderViewModel { Id = order.Id, TotalCost = order.TotalCost, UserId = order.UserId });
-        }
-
-        return new OkObjectResult(result);
-    }
-
-    // POST api/Users/5/Orders
-    [HttpPost("{userId}/Orders")]
-    public async Task<IActionResult> AddOrder([FromRoute] int userId)
-    {
-        var order = await _orderService.AddOrder(userId);
-        var result = new OrderViewModel() { Id = order.Id, TotalCost = order.TotalCost, UserId = order.UserId };
-        return new OkObjectResult(result);
     }
 
     // POST api/Users/5/Contacts

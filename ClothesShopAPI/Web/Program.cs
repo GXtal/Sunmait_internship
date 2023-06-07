@@ -27,6 +27,7 @@ builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
 builder.Services.AddTransient<IRoleRepository, RoleRepository>();
 builder.Services.AddTransient<IStatusRepository, StatusRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IImageRepository, ImageRepository>();
 
 builder.Services.AddTransient<ShopDbContext>();
 
@@ -37,10 +38,9 @@ builder.Services.AddTransient<IContactService, ContactService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
-builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<ISectionService, SectionService>();
-builder.Services.AddTransient<IStatusService, StatusService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IImageService, ImageService>();
 
 builder.Services.AddTransient<ErrorMiddleware>();
 

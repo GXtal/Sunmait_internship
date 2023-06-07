@@ -23,25 +23,39 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product> GetProductById(int id)
     {
-        var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _dbContext.Products.
+            Include(p => p.Brand).
+            Include(p => p.Category).
+            FirstOrDefaultAsync(p => p.Id == id);
         return product;
     }
 
     public async Task<IEnumerable<Product>> GetProducts()
     {
-        var allProducts = await _dbContext.Products.ToListAsync();
+        var allProducts = await _dbContext.Products.
+            Include(p => p.Brand).
+            Include(p => p.Category).
+            ToListAsync();
         return allProducts;
     }
 
     public async Task<IEnumerable<Product>> GetProductsByBrand(Brand brand)
     {
-        var products = await _dbContext.Products.Where(p => p.BrandId == brand.Id).ToListAsync();
+        var products = await _dbContext.Products.
+            Include(p => p.Brand).
+            Include(p => p.Category).
+            Where(p => p.BrandId == brand.Id).
+            ToListAsync();
         return products;
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategory(Category category)
     {
-        var products = await _dbContext.Products.Where(p => p.CategoryId == category.Id).ToListAsync();
+        var products = await _dbContext.Products.
+            Include(p => p.Brand).
+            Include(p => p.Category).
+            Where(p => p.CategoryId == category.Id).
+            ToListAsync();
         return products;
     }
 
@@ -54,5 +68,16 @@ public class ProductRepository : IProductRepository
     public async Task Save()
     {
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsBySection(Section section)
+    {
+        var products = await _dbContext.Products.
+            Include(p => p.Brand).
+            Include(p => p.Category).
+            ThenInclude(c => c.CategoriesSections).
+            Where(p => p.Category.CategoriesSections.Any(cs => cs.SectionId == section.Id)).
+            ToListAsync();
+        return products;
     }
 }

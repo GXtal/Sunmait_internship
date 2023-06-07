@@ -6,5 +6,7 @@ public class OrderHistoryViewModel
 
     public int StatusId { get; set; }
 
+    public string StatusName { get; set; }
+
     public DateTime SetTime { get; set; }
 }

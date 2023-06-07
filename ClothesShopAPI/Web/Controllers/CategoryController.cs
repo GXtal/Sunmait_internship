@@ -18,7 +18,7 @@ public class CategoryController : ControllerBase
 
     // GET: api/Categories
     [HttpGet]
-    public async Task<IActionResult> GetCategorys()
+    public async Task<IActionResult> GetCategories()
     {
         var allCategories = await _categoryService.GetCategories();
 
@@ -28,15 +28,6 @@ public class CategoryController : ControllerBase
             result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name });
         }
 
-        return new OkObjectResult(result);
-    }
-
-    // GET api/Categories/5
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCategoryById([FromRoute] int id)
-    {
-        var category = await _categoryService.GetCategory(id);
-        var result = new CategoryViewModel() { Id = category.Id, Name = category.Name };
         return new OkObjectResult(result);
     }
 
@@ -82,7 +73,7 @@ public class CategoryController : ControllerBase
 
     // DELETE api/Categories/5/Section/3
     [HttpDelete("{id}/Section/{sectionId}")]
-    public async Task<IActionResult> UnlinkCategoryToSection([FromRoute] int id, [FromRoute] int sectionId)
+    public async Task<IActionResult> UnlinkCategoryFromSection([FromRoute] int id, [FromRoute] int sectionId)
     {
         await _categoryService.UnlinkCategoryToSection(id, sectionId);
         return new OkResult();

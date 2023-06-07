@@ -22,7 +22,10 @@ public class OrderHistoryRepository : IOrderHistoryRepository
 
     public async Task<IEnumerable<OrderHistory>> GetHistoryByOrder(Order order)
     {
-        var orderHistories = await _dbContext.OrderHistories.Where(oh => oh.OrderId == order.Id).ToListAsync();
+        var orderHistories = await _dbContext.OrderHistories.
+            Include(oh => oh.Status).
+            Where(oh => oh.OrderId == order.Id).
+            ToListAsync();
         return orderHistories;
     }
 

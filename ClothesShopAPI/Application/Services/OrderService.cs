@@ -50,55 +50,7 @@ public class OrderService : IOrderService
         await _orderHistoryRepository.AddHistory(orderHistory);
     }
 
-    public async Task AddProductToOrder(int id, int productId, int count)
-    {
-        var order = await _orderRepository.GetOrderById(id);
-        if (order == null)
-        {
-            throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
-        }
-
-        var history = await _orderHistoryRepository.GetHistoryByOrder(order);
-        history = history.OrderByDescending(h => h.SetTime);
-
-        var currentStatus = history.First();
-
-        if (currentStatus.StatusId != AwaitingConfirmation)
-        {
-            throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id));
-        }
-
-        var product = await _productRepository.GetProductById(id);
-        if (product == null)
-        {
-            throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, id));
-        }
-
-        if (product.Quantity < count)
-        {
-            throw new BadRequestException(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, id));
-        }
-
-        var existingOrderProduct = await _orderProductRepository.GetOrderProduct(order, product);
-        if (existingOrderProduct == null)
-        {
-            var orderProduct = new OrderProduct() { OrderId = id, ProductId = productId, Count = count };
-            await _orderProductRepository.AddOrderProduct(orderProduct);
-        }
-        else
-        {
-            existingOrderProduct.Count += count;
-            await _orderProductRepository.UpdateOrderProduct(existingOrderProduct);
-        }
-
-        product.Quantity -= count;
-        await _productRepository.UpdateProduct(product);
-
-        order.TotalCost += count * product.Price;
-        await _orderRepository.UpdateOrder(order);
-    }
-
-    public async Task<Order> AddOrder(int userId)
+    public async Task AddOrder(int userId, IEnumerable<OrderProduct> orderProducts)
     {
         var user = await _userRepository.GetUserById(userId);
         if (user == null)
@@ -112,7 +64,28 @@ public class OrderService : IOrderService
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
 
-        return order;
+        foreach (var orderProduct in orderProducts)
+        {
+            var product = await _productRepository.GetProductById(orderProduct.ProductId);
+            if (product == null)
+            {
+                throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, orderProduct.ProductId));
+            }
+
+            if (product.Quantity < orderProduct.Count)
+            {
+                throw new BadRequestException(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, orderProduct.ProductId));
+            }
+
+            orderProduct.OrderId = order.Id;
+            await _orderProductRepository.AddOrderProduct(orderProduct);
+
+            product.Quantity -= orderProduct.Count;
+            await _productRepository.UpdateProduct(product);
+
+            order.TotalCost += orderProduct.Count * product.Price;
+            await _orderRepository.UpdateOrder(order);
+        }
     }
 
     public async Task<Order> GetOrder(int id)
@@ -147,45 +120,6 @@ public class OrderService : IOrderService
 
         var history = await _orderHistoryRepository.GetHistoryByOrder(order);
         return history;
-    }
-
-    public async Task RemoveProductFromOrder(int id, int productId)
-    {
-        var order = await _orderRepository.GetOrderById(id);
-        if (order == null)
-        {
-            throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
-        }
-
-        var history = await _orderHistoryRepository.GetHistoryByOrder(order);
-        history = history.OrderByDescending(h => h.SetTime);
-
-        var currentStatus = history.First();
-
-        if (currentStatus.StatusId != AwaitingConfirmation)
-        {
-            throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id));
-        }
-
-        var product = await _productRepository.GetProductById(id);
-        if (product == null)
-        {
-            throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, id));
-        }
-
-        var orderProduct = await _orderProductRepository.GetOrderProduct(order, product);
-        if (orderProduct == null)
-        {
-            throw new NotFoundException(String.Format(OrderProductExceptionsMessages.OrderProductNotFound, id, productId));
-        }
-
-        order.TotalCost -= product.Price * orderProduct.Count;
-        await _orderRepository.UpdateOrder(order);
-
-        product.Quantity += orderProduct.Count;
-        await _productRepository.UpdateProduct(product);
-
-        await _orderProductRepository.RemoveOrderProduct(orderProduct);
     }
 
     public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id)

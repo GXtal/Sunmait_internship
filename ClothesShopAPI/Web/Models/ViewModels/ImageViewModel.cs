@@ -1,8 +1,8 @@
 ﻿namespace Web.Models.ViewModels;
 
-public class RoleViewModel
+public class ImageViewModel
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    public string Path { get; set; }
 }

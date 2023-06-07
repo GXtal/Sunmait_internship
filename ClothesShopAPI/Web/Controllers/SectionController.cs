@@ -31,15 +31,6 @@ public class SectionController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // GET api/Sections/5
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetSectionById([FromRoute] int id)
-    {
-        var section = await _sectionService.GetSection(id);
-        var result = new SectionViewModel() { Id = section.Id, Name = section.Name };
-        return new OkObjectResult(result);
-    }
-
     // POST api/Sections
     [HttpPost]
     public async Task<IActionResult> AddSection([FromBody] SectionInputModel newSection)

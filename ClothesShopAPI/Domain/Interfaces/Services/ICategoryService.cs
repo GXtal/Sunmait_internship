@@ -4,8 +4,6 @@ namespace Domain.Interfaces.Services;
 
 public interface ICategoryService
 {
-    public Task<Category> GetCategory(int id);
-
     public Task<IEnumerable<Category>> GetCategories();
 
     public Task AddCategory(string newCategoryName);

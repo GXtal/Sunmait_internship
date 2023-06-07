@@ -11,12 +11,15 @@ public class ProductService : IProductService
     private readonly IBrandRepository _brandRepository;
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ISectionRepository _sectionRepository;
 
-    public ProductService(IBrandRepository brandRepository, IProductRepository productRepository, ICategoryRepository categoryRepository)
+    public ProductService(IBrandRepository brandRepository, IProductRepository productRepository,
+        ICategoryRepository categoryRepository, ISectionRepository sectionRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _sectionRepository = sectionRepository;
     }
 
     public async Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
@@ -31,7 +34,7 @@ public class ProductService : IProductService
         var category = await _categoryRepository.GetCategoryById(categoryId);
         if (category == null)
         {
-            throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, brandId));
+            throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, categoryId));
         }
 
         var product = new Product()
@@ -59,6 +62,42 @@ public class ProductService : IProductService
     public async Task<IEnumerable<Product>> GetProducts()
     {
         var products = await _productRepository.GetProducts();
+        return products;
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsByBrand(int brandId)
+    {
+        var brand = await _brandRepository.GetBrandById(brandId);
+        if (brand == null)
+        {
+            throw new NotFoundException(String.Format(BrandExceptionsMessages.BrandNotFound, brandId));
+        }
+
+        var products = await _productRepository.GetProductsByBrand(brand);
+        return products;
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsByCategory(int categoryId)
+    {
+        var category = await _categoryRepository.GetCategoryById(categoryId);
+        if (category == null)
+        {
+            throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, categoryId));
+        }
+
+        var products = await _productRepository.GetProductsByCategory(category);
+        return products;
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsBySection(int sectionId)
+    {
+        var section = await _sectionRepository.GetSectionById(sectionId);
+        if (section == null)
+        {
+            throw new NotFoundException(String.Format(SectionExceptionsMessages.SectionNotFound, sectionId));
+        }
+
+        var products = await _productRepository.GetProductsBySection(section);
         return products;
     }
 

@@ -17,16 +17,6 @@ public class BrandService : IBrandService
         _productRepository = productRepository;
     }
 
-    public async Task<Brand> GetBrand(int id)
-    {
-        var brand = await _brandRepository.GetBrandById(id);
-        if (brand == null)
-        {
-            throw new NotFoundException(String.Format(BrandExceptionsMessages.BrandNotFound, id));
-        }
-        return brand;
-    }
-
     public async Task<IEnumerable<Brand>> GetBrands()
     {
         var brands = await _brandRepository.GetBrands();

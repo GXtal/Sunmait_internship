@@ -1,4 +1,5 @@
 ﻿using Application.Services;
+using Domain.Entities;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models.InputModels;
@@ -36,7 +37,87 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity
+                Quantity = product.Quantity,
+                CategoryName = product.Category.Name,
+                BrandName = product.Brand.Name,
+            });
+        }
+
+        return new OkObjectResult(result);
+    }
+
+    // GET: api/Products/Brand/5
+    [HttpGet("Brand/{brandId}")]
+    public async Task<IActionResult> GetProductsByBrand([FromRoute] int brandId)
+    {
+        var allProducts = await _productService.GetProductsByBrand(brandId);
+
+        var result = new List<ProductViewModel>();
+        foreach (var product in allProducts)
+        {
+            result.Add(new ProductViewModel()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                BrandId = product.BrandId,
+                CategoryId = product.CategoryId,
+                Description = product.Description,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                CategoryName = product.Category.Name,
+                BrandName = product.Brand.Name,
+            });
+        }
+
+        return new OkObjectResult(result);
+    }
+
+    // GET: api/Products/Category/5
+    [HttpGet("Category/{categoryId}")]
+    public async Task<IActionResult> GetProductsByCategory([FromRoute] int categoryId)
+    {
+        var allProducts = await _productService.GetProductsByCategory(categoryId);
+
+        var result = new List<ProductViewModel>();
+        foreach (var product in allProducts)
+        {
+            result.Add(new ProductViewModel()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                BrandId = product.BrandId,
+                CategoryId = product.CategoryId,
+                Description = product.Description,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                CategoryName = product.Category.Name,
+                BrandName = product.Brand.Name,
+            });
+        }
+
+        return new OkObjectResult(result);
+    }
+
+    // GET: api/Products/Section/5
+    [HttpGet("Section/{sectionId}")]
+    public async Task<IActionResult> GetProductsBySection([FromRoute] int sectionId)
+    {
+        var allProducts = await _productService.GetProductsByCategory(sectionId);
+
+        var result = new List<ProductViewModel>();
+        foreach (var product in allProducts)
+        {
+            result.Add(new ProductViewModel()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                BrandId = product.BrandId,
+                CategoryId = product.CategoryId,
+                Description = product.Description,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                CategoryName = product.Category.Name,
+                BrandName = product.Brand.Name,
             });
         }
 
@@ -56,7 +137,9 @@ public class ProductController : ControllerBase
             CategoryId = product.CategoryId,
             Description = product.Description,
             Price = product.Price,
-            Quantity = product.Quantity
+            Quantity = product.Quantity,
+            CategoryName = product.Category.Name,
+            BrandName = product.Brand.Name,
         };
         return new OkObjectResult(result);
     }

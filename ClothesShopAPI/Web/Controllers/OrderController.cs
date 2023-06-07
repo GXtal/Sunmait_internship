@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Entities;
+using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
@@ -33,14 +34,14 @@ public class OrderController : ControllerBase
         var result = new List<OrderHistoryViewModel>();
         foreach (var item in history)
         {
-            result.Add(new OrderHistoryViewModel { OrderId = item.OrderId, StatusId = item.StatusId, SetTime = item.SetTime });
+            result.Add(new OrderHistoryViewModel { OrderId = item.OrderId, StatusId = item.StatusId, StatusName = item.Status.Name, SetTime = item.SetTime });
         }
         return new OkObjectResult(result);
     }
 
     // POST api/Orders/5/History/3
     [HttpPost("{id}/History/{statusId}")]
-    public async Task<IActionResult> AddProductToOrder([FromRoute] int id, [FromRoute] int statusId)
+    public async Task<IActionResult> AddStatusToOrder([FromRoute] int id, [FromRoute] int statusId)
     {
         await _orderService.AddOrderStatus(id, statusId);
         return new OkResult();
@@ -59,20 +60,33 @@ public class OrderController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // POST api/Orders/5/Products/3
-    [HttpPost("{id}/Products/{productId}")]
-    public async Task<IActionResult> AddProductToOrder([FromRoute] int id, [FromRoute] int productId,
-        [FromBody] OrderProductCountInputModel countModel)
+    // GET api/Orders/User/5
+    [HttpGet("Users/{userId}")]
+    public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
-        await _orderService.AddProductToOrder(id, productId, countModel.Count);
-        return new OkResult();
+        var allOrders = await _orderService.GetOrders(userId);
+
+        var result = new List<OrderViewModel>();
+        foreach (var order in allOrders)
+        {
+            result.Add(new OrderViewModel { Id = order.Id, TotalCost = order.TotalCost, UserId = order.UserId });
+        }
+
+        return new OkObjectResult(result);
     }
 
-    // DELETE api/Orders/5/Products/3
-    [HttpDelete("{id}/Products/{productId}")]
-    public async Task<IActionResult> RemoveProductFromOrder([FromRoute] int id, [FromRoute] int productId)
+    // POST api/Orders/User/5
+    [HttpPost("Users/{userId}")]
+    public async Task<IActionResult> AddOrder([FromRoute] int userId, [FromBody] IEnumerable<OrderProductInputModel> orderProducts)
     {
-        await _orderService.RemoveProductFromOrder(id, productId);
+        var productsToAdd = new List<OrderProduct>();
+        foreach (var orderProduct in orderProducts)
+        {
+            productsToAdd.Add(new OrderProduct() { Count = orderProduct.Count, ProductId = orderProduct.ProductId });
+        }
+
+        await _orderService.AddOrder(userId, productsToAdd);
+        
         return new OkResult();
     }
 }

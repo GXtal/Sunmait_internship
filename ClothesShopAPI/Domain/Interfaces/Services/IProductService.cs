@@ -8,6 +8,12 @@ public interface IProductService
 
     public Task<IEnumerable<Product>> GetProducts();
 
+    public Task<IEnumerable<Product>> GetProductsByBrand(int brandId);
+
+    public Task<IEnumerable<Product>> GetProductsByCategory(int categoryId);
+
+    public Task<IEnumerable<Product>> GetProductsBySection(int sectionId);
+
     public Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId);
 

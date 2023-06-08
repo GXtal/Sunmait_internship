@@ -17,7 +17,7 @@ public class ImageService : IImageService
         _productRepository = productRepository;
     }
 
-    public async Task AddImage(string newImagePath, int productId)
+    public async Task AddImage(byte[] content, int productId)
     {
         var product = await _productRepository.GetProductById(productId);
         if (product == null)
@@ -25,11 +25,18 @@ public class ImageService : IImageService
             throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, productId));
         }
 
-        var image = new Image() { ProductId = productId, Path = newImagePath };
+        var image = new Image() { ProductId = productId, Content = content };
         await _imageRepository.AddImage(image);
     }
 
-    public async Task<IEnumerable<Image>> GetImagesByProduct(int productId)
+    public async Task<Image> GetImageById(int id)
+    {
+        var image = await _imageRepository.GetImageById(id);
+
+        return image;
+    }
+
+    public async Task<IEnumerable<int>> GetImageIdsByProduct(int productId)
     {
         var product = await _productRepository.GetProductById(productId);
         if (product == null)
@@ -37,7 +44,7 @@ public class ImageService : IImageService
             throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, productId));
         }
 
-        var images = await _imageRepository.GetImagesByProduct(product);
+        var images = await _imageRepository.GetImageIdsByProduct(product);
         return images;
     }
 

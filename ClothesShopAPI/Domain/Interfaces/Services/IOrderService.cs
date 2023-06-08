@@ -12,7 +12,5 @@ public interface IOrderService
 
     public Task AddOrder(int userId, IEnumerable<OrderProduct> orderProducts);
 
-    public Task<IEnumerable<OrderProduct>> GetOrderProducts(int id);
-
     public Task AddOrderStatus(int id, int statusId);
 }

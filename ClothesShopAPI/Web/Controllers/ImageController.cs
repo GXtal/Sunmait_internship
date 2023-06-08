@@ -9,6 +9,8 @@ namespace Web.Controllers;
 [ApiController]
 public class ImageController : ControllerBase
 {
+    private const string MimeType = "image/png";
+
     private readonly IImageService _imageService;
     private readonly IWebHostEnvironment _environment;
 
@@ -23,36 +25,41 @@ public class ImageController : ControllerBase
     {
         if (newImage.formFile.Length > 0)
         {
-            if (!Directory.Exists(_environment.WebRootPath + "\\Images"))
-            {
-                Directory.CreateDirectory(_environment.WebRootPath + "\\Images\\");
-            }
+            var type = newImage.formFile.ContentType;
 
-            var filePath = _environment.WebRootPath + "\\Images\\" + newImage.formFile.FileName;
-            using (FileStream fileStream = System.IO.File.Create(filePath))
-            {
-                newImage.formFile.CopyTo(fileStream);
-                fileStream.Flush();
-            }
+            byte[] content = new byte[newImage.formFile.Length];
+            var stream = new MemoryStream(content);
+            newImage.formFile.CopyTo(stream);
 
-            await _imageService.AddImage(filePath, newImage.ProductId);
+            await _imageService.AddImage(content, newImage.ProductId);
         }
 
         return new OkResult();
     }
 
-    [HttpGet("{productId}")]
-    public async Task<IActionResult> GetImagesByProduct([FromRoute] int productId)
+    [HttpGet("/Products/{productId}")]
+    public async Task<IActionResult> GetImageIdsByProduct([FromRoute] int productId)
     {
-        var images = await _imageService.GetImagesByProduct(productId);
+        var imageIds = await _imageService.GetImageIdsByProduct(productId);
 
-        var result = new List<ImageViewModel>();
-        foreach (var image in images)
+        var result = new List<ImageIdViewModel>();
+
+        foreach (var imageId in imageIds)
         {
-            result.Add(new ImageViewModel() { Id = image.Id, Path = image.Path });
+            result.Add(new ImageIdViewModel { Id = imageId });
         }
 
-        return new OkObjectResult(result);
+        return new OkObjectResult(imageIds);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetImageById([FromRoute] int id)
+    {
+        var image = await _imageService.GetImageById(id);
+
+        var result = image.Content;
+
+        return File(result, MimeType);
     }
 
     [HttpDelete("{id}")]

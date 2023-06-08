@@ -13,6 +13,11 @@ public class OrderService : IOrderService
     public const int Completed = 3;
     public const int Canceled = 4;
 
+    private readonly bool[,] _possibilities = { { true, true, false, true },
+                                                { true, true, true, true },
+                                                { false, false, true, false },
+                                                { true, false, false, true } };
+
     private readonly IUserRepository _userRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderHistoryRepository _orderHistoryRepository;
@@ -44,6 +49,15 @@ public class OrderService : IOrderService
         if (status == null)
         {
             throw new NotFoundException(String.Format(StatusExceptionsMessages.StatusNotFound, statusId));
+        }
+
+        var history = await _orderHistoryRepository.GetHistoryByOrder(order);
+
+        history = history.OrderByDescending(x => x.SetTime).ToList();
+
+        if (!_possibilities[history.First().StatusId - 1, statusId - 1])
+        {
+            throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id, statusId));
         }
 
         var orderHistory = new OrderHistory() { OrderId = id, StatusId = statusId, SetTime = DateTime.Now };
@@ -120,17 +134,5 @@ public class OrderService : IOrderService
 
         var history = await _orderHistoryRepository.GetHistoryByOrder(order);
         return history;
-    }
-
-    public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id)
-    {
-        var order = await _orderRepository.GetOrderById(id);
-        if (order == null)
-        {
-            throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
-        }
-
-        var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);
-        return orderProducts;
     }
 }

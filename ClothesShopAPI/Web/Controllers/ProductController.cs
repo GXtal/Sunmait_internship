@@ -12,12 +12,10 @@ namespace Web.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
-    private readonly IReviewService _reviewService;
 
-    public ProductController(IProductService productService, IReviewService reviewService)
+    public ProductController(IProductService productService)
     {
         _productService = productService;
-        _reviewService = reviewService;
     }
 
     // GET: api/Products
@@ -98,32 +96,6 @@ public class ProductController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // GET: api/Products/Section/5
-    [HttpGet("Section/{sectionId}")]
-    public async Task<IActionResult> GetProductsBySection([FromRoute] int sectionId)
-    {
-        var allProducts = await _productService.GetProductsByCategory(sectionId);
-
-        var result = new List<ProductViewModel>();
-        foreach (var product in allProducts)
-        {
-            result.Add(new ProductViewModel()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                BrandId = product.BrandId,
-                CategoryId = product.CategoryId,
-                Description = product.Description,
-                Price = product.Price,
-                Quantity = product.Quantity,
-                CategoryName = product.Category.Name,
-                BrandName = product.Brand.Name,
-            });
-        }
-
-        return new OkObjectResult(result);
-    }
-
     // GET api/Products/5
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
@@ -144,29 +116,6 @@ public class ProductController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // GET: api/Products/5/Reviews
-    [HttpGet("{id}/Reviews")]
-    public async Task<IActionResult> GetProductReviews([FromRoute] int id)
-    {
-        var allReviews = await _reviewService.GetReviews(id);
-
-        var result = new List<ReviewViewModel>();
-        foreach (var review in allReviews)
-        {
-            result.Add(new ReviewViewModel()
-            {
-                Id = review.Id,
-                Comment = review.Comment,
-                Rating = review.Rating,
-                ProductId = review.ProductId,
-                UserId = review.ProductId,
-                UserName = review.User.Name,
-            });
-        }
-
-        return new OkObjectResult(result);
-    }
-
     // POST api/Products
     [HttpPost]
     public async Task<IActionResult> AddProduct([FromBody] ProductInputModel newProduct)
@@ -183,5 +132,25 @@ public class ProductController : ControllerBase
         await _productService.UpdateProduct(id, newProduct.Name, newProduct.Description,
             newProduct.Price, newProduct.Quantity, newProduct.BrandId, newProduct.CategoryId);
         return new OkResult();
+    }
+
+    // GET api/Products/Orders/5
+    [HttpGet("Orders/{orderId}")]
+    public async Task<IActionResult> GetOrderProducts([FromRoute] int orderId)
+    {
+        var orderProducts = await _productService.GetOrderProducts(orderId);
+        var result = new List<OrderProductViewModel>();
+        foreach (var orderProduct in orderProducts)
+        {
+            result.Add(new OrderProductViewModel
+            {
+                OrderId = orderProduct.OrderId,
+                ProductId = orderProduct.ProductId,
+                Count = orderProduct.Count,
+                ProductName = orderProduct.Product.Name,
+                ProductPrice = orderProduct.Product.Price,
+            });
+        }
+        return new OkObjectResult(result);
     }
 }

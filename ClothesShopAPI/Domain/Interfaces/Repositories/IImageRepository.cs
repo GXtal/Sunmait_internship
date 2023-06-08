@@ -8,7 +8,7 @@ public interface IImageRepository
 
     public Task<Image> GetImageById(int id);
 
-    public Task<IEnumerable<Image>> GetImagesByProduct(Product product);
+    public Task<IEnumerable<int>> GetImageIdsByProduct(Product product);
 
     public Task RemoveImage(Image image);
 

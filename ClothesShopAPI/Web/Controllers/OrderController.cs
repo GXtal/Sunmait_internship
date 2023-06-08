@@ -53,26 +53,6 @@ public class OrderController : ControllerBase
         return new OkResult();
     }
 
-    // GET api/Orders/5/Products
-    [HttpGet("{id}/Products")]
-    public async Task<IActionResult> GetOrderProducts([FromRoute] int id)
-    {
-        var orderProducts = await _orderService.GetOrderProducts(id);
-        var result = new List<OrderProductViewModel>();
-        foreach (var orderProduct in orderProducts)
-        {
-            result.Add(new OrderProductViewModel
-            {
-                OrderId = orderProduct.OrderId,
-                ProductId = orderProduct.ProductId,
-                Count = orderProduct.Count,
-                ProductName = orderProduct.Product.Name,
-                ProductPrice = orderProduct.Product.Price,
-            });
-        }
-        return new OkObjectResult(result);
-    }
-
     // GET api/Orders/User/5
     [HttpGet("Users/{userId}")]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)

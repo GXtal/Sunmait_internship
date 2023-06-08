@@ -10,8 +10,7 @@ public class ImageConfiguration : IEntityTypeConfiguration<Image>
     {
         builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Path)
-            .HasMaxLength(256)
+        builder.Property(e => e.Content)
             .IsRequired();
 
         builder.Property(e => e.ProductId).IsRequired();

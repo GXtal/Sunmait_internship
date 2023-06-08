@@ -1,8 +1,6 @@
 ﻿namespace Web.Models.ViewModels;
 
-public class ImageViewModel
+public class ImageIdViewModel
 {
     public int Id { get; set; }
-
-    public string Path { get; set; }
 }

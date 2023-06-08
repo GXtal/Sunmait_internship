@@ -31,4 +31,27 @@ public class ReviewController : ControllerBase
         await _reviewService.RemoveReview(id);
         return new OkResult();
     }
+
+    // GET: api/Reviews/Products/5
+    [HttpGet("Products/{productId}")]
+    public async Task<IActionResult> GetProductReviews([FromRoute] int productId)
+    {
+        var allReviews = await _reviewService.GetReviews(productId);
+
+        var result = new List<ReviewViewModel>();
+        foreach (var review in allReviews)
+        {
+            result.Add(new ReviewViewModel()
+            {
+                Id = review.Id,
+                Comment = review.Comment,
+                Rating = review.Rating,
+                ProductId = review.ProductId,
+                UserId = review.ProductId,
+                UserName = review.User.Name,
+            });
+        }
+
+        return new OkObjectResult(result);
+    }
 }

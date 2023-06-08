@@ -11,15 +11,17 @@ public class ProductService : IProductService
     private readonly IBrandRepository _brandRepository;
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
-    private readonly ISectionRepository _sectionRepository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IOrderProductRepository _orderProductRepository;
 
     public ProductService(IBrandRepository brandRepository, IProductRepository productRepository,
-        ICategoryRepository categoryRepository, ISectionRepository sectionRepository)
+        ICategoryRepository categoryRepository, IOrderRepository orderRepository, IOrderProductRepository orderProductRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
-        _sectionRepository = sectionRepository;
+        _orderRepository = orderRepository;
+        _orderProductRepository = orderProductRepository;
     }
 
     public async Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
@@ -89,18 +91,6 @@ public class ProductService : IProductService
         return products;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsBySection(int sectionId)
-    {
-        var section = await _sectionRepository.GetSectionById(sectionId);
-        if (section == null)
-        {
-            throw new NotFoundException(String.Format(SectionExceptionsMessages.SectionNotFound, sectionId));
-        }
-
-        var products = await _productRepository.GetProductsBySection(section);
-        return products;
-    }
-
     public async Task UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId)
     {
@@ -130,5 +120,17 @@ public class ProductService : IProductService
         product.CategoryId = categoryId;
 
         await _productRepository.UpdateProduct(product);
+    }
+
+    public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id)
+    {
+        var order = await _orderRepository.GetOrderById(id);
+        if (order == null)
+        {
+            throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
+        }
+
+        var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);
+        return orderProducts;
     }
 }

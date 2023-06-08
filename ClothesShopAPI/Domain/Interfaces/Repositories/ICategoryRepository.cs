@@ -8,6 +8,8 @@ public interface ICategoryRepository
 
     public Task<IEnumerable<Category>> GetCategoriesByParent(int parentId);
 
+    public Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId);
+
     public Task<Category> GetCategoryById(int id);
 
     public Task<Category> GetCategoryByName(string categoryName);

@@ -16,22 +16,6 @@ public class ReviewController : ControllerBase
         _reviewService = reviewService;
     }
 
-    // GET api/Reviews/5
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetReviewById([FromRoute] int id)
-    {
-        var review = await _reviewService.GetReview(id);
-        var result = new ReviewViewModel()
-        {
-            Id = review.Id,
-            Comment = review.Comment,
-            Rating = review.Rating,
-            ProductId = review.ProductId,
-            UserId = review.ProductId
-        };
-        return new OkObjectResult(result);
-    }
-
     // POST api/Reviews
     [HttpPost]
     public async Task<IActionResult> AddReview([FromBody] ReviewInputModel newReview)

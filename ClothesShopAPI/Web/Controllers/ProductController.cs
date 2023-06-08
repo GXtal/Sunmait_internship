@@ -159,7 +159,8 @@ public class ProductController : ControllerBase
                 Comment = review.Comment,
                 Rating = review.Rating,
                 ProductId = review.ProductId,
-                UserId = review.ProductId
+                UserId = review.ProductId,
+                UserName = review.User.Name,
             });
         }
 

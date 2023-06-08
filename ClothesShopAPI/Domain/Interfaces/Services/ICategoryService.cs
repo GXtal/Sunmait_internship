@@ -17,4 +17,8 @@ public interface ICategoryService
     public Task UnlinkCategoryToSection(int id, int sectionId);
 
     public Task RemoveCategory(int id);
+
+    public Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId);
+
+    public Task<IEnumerable<Category>> GetCategoriesByParent(int parentId);
 }

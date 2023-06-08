@@ -154,4 +154,28 @@ public class CategoryService : ICategoryService
         category.Name = newCategoryName;
         await _categoryRepository.UpdateCategory(category);
     }
+
+    public async Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId)
+    {
+        var section = await _sectionRepository.GetSectionById(sectionId);
+        if (section == null)
+        {
+            throw new NotFoundException(String.Format(SectionExceptionsMessages.SectionNotFound, sectionId));
+        }
+
+        var categories = await _categoryRepository.GetCategoriesBySection(sectionId);
+        return categories;
+    }
+
+    public async Task<IEnumerable<Category>> GetCategoriesByParent(int parentId)
+    {
+        var parent = await _categoryRepository.GetCategoryById(parentId);
+        if (parent == null)
+        {
+            throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, parentId));
+        }
+
+        var categories = await _categoryRepository.GetCategoriesByParent(parentId);
+        return categories;
+    }
 }

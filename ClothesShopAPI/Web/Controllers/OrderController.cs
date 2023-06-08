@@ -34,7 +34,13 @@ public class OrderController : ControllerBase
         var result = new List<OrderHistoryViewModel>();
         foreach (var item in history)
         {
-            result.Add(new OrderHistoryViewModel { OrderId = item.OrderId, StatusId = item.StatusId, StatusName = item.Status.Name, SetTime = item.SetTime });
+            result.Add(new OrderHistoryViewModel
+            {
+                OrderId = item.OrderId,
+                StatusId = item.StatusId,
+                StatusName = item.Status.Name,
+                SetTime = item.SetTime
+            });
         }
         return new OkObjectResult(result);
     }
@@ -55,7 +61,14 @@ public class OrderController : ControllerBase
         var result = new List<OrderProductViewModel>();
         foreach (var orderProduct in orderProducts)
         {
-            result.Add(new OrderProductViewModel { OrderId = orderProduct.OrderId, ProductId = orderProduct.ProductId, Count = orderProduct.Count });
+            result.Add(new OrderProductViewModel
+            {
+                OrderId = orderProduct.OrderId,
+                ProductId = orderProduct.ProductId,
+                Count = orderProduct.Count,
+                ProductName = orderProduct.Product.Name,
+                ProductPrice = orderProduct.Product.Price,
+            });
         }
         return new OkObjectResult(result);
     }

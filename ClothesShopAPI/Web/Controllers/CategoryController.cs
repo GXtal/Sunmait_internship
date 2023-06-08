@@ -31,6 +31,36 @@ public class CategoryController : ControllerBase
         return new OkObjectResult(result);
     }
 
+    // GET: api/Categories/Parent/5
+    [HttpGet("Parent/{parentId}")]
+    public async Task<IActionResult> GetCategoriesByParent([FromRoute] int parentId)
+    {
+        var allCategories = await _categoryService.GetCategoriesByParent(parentId);
+
+        var result = new List<CategoryViewModel>();
+        foreach (var category in allCategories)
+        {
+            result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name });
+        }
+
+        return new OkObjectResult(result);
+    }
+
+    // GET: api/Categories/Section/5
+    [HttpGet("Section/{sectionId}")]
+    public async Task<IActionResult> GetCategoriesBySection([FromRoute] int sectionId)
+    {
+        var allCategories = await _categoryService.GetCategoriesBySection(sectionId);
+
+        var result = new List<CategoryViewModel>();
+        foreach (var category in allCategories)
+        {
+            result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name });
+        }
+
+        return new OkObjectResult(result);
+    }
+
     // POST api/Categories
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryInputModel newCategory)

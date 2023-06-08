@@ -4,8 +4,6 @@ namespace Domain.Interfaces.Services;
 
 public interface IReviewService
 {
-    public Task<Review> GetReview(int id);
-
     public Task<IEnumerable<Review>> GetReviews(int productId);
 
     public Task AddReview(string newReviewComment, int rating, int productId, int userId);

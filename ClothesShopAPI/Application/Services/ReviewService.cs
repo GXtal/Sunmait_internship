@@ -37,16 +37,6 @@ public class ReviewService : IReviewService
         await _reviewRepository.AddReview(review);
     }
 
-    public async Task<Review> GetReview(int id)
-    {
-        var review = await _reviewRepository.GetReviewById(id);
-        if (review == null)
-        {
-            throw new NotFoundException(String.Format(ReviewExceptionsMessages.ReviewNotFound, id));
-        }
-        return review;
-    }
-
     public async Task<IEnumerable<Review>> GetReviews(int productId)
     {
         var product = await _productRepository.GetProductById(productId);

@@ -47,7 +47,9 @@ public class OrderProductRepository : IOrderProductRepository
     public async Task<IEnumerable<OrderProduct>> GetOrderProductsByOrder(Order order)
     {
         var orderProducts = await _dbContext.OrdersProducts.
-            Where(cs => cs.OrderId == order.Id).ToListAsync();
+            Include(x => x.Product).
+            Where(cs => cs.OrderId == order.Id).
+            ToListAsync();
         return orderProducts;
     }
 }

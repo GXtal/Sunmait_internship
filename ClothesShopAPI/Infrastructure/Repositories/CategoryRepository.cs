@@ -26,6 +26,12 @@ public class CategoryRepository : ICategoryRepository
         return categories;
     }
 
+    public async Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId)
+    {
+        var categories = await _dbContext.Categories.Where(c => c.CategoriesSections.Any(cs => cs.SectionId == sectionId)).ToListAsync();
+        return categories;
+    }
+
     public async Task<Category> GetCategoryById(int id)
     {
         var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);

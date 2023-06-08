@@ -29,7 +29,10 @@ public class ReviewRepository : IReviewRepository
 
     public async Task<IEnumerable<Review>> GetReviewsByProduct(Product product)
     {
-        var reviews = await _dbContext.Reviews.Where(r => r.ProductId == product.Id).ToListAsync();
+        var reviews = await _dbContext.Reviews.
+            Include(r => r.User).
+            Where(r => r.ProductId == product.Id).
+            ToListAsync();
         return reviews;
     }
 

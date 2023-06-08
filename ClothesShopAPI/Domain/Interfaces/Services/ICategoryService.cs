@@ -4,7 +4,7 @@ namespace Domain.Interfaces.Services;
 
 public interface ICategoryService
 {
-    public Task<IEnumerable<Category>> GetCategories();
+    public Task<IEnumerable<Category>> GetTopLevelCategories();
 
     public Task AddCategory(string newCategoryName);
 
@@ -20,5 +20,5 @@ public interface ICategoryService
 
     public Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId);
 
-    public Task<IEnumerable<Category>> GetCategoriesByParent(int parentId);
+    public Task<IEnumerable<Category>> GetCategoriesTreeByParent(int parentId);
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Entities;
+using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
@@ -18,14 +19,14 @@ public class CategoryController : ControllerBase
 
     // GET: api/Categories
     [HttpGet]
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetTopLevelCategories()
     {
-        var allCategories = await _categoryService.GetCategories();
+        var allCategories = await _categoryService.GetTopLevelCategories();
 
         var result = new List<CategoryViewModel>();
         foreach (var category in allCategories)
         {
-            result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name });
+            result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name, Subcategories = new List<CategoryViewModel>() });
         }
 
         return new OkObjectResult(result);
@@ -33,17 +34,27 @@ public class CategoryController : ControllerBase
 
     // GET: api/Categories/Parent/5
     [HttpGet("Parent/{parentId}")]
-    public async Task<IActionResult> GetCategoriesByParent([FromRoute] int parentId)
+    public async Task<IActionResult> GetCategoriesTreeByParent([FromRoute] int parentId)
     {
-        var allCategories = await _categoryService.GetCategoriesByParent(parentId);
+        var allCategories = await _categoryService.GetCategoriesTreeByParent(parentId);
 
+        var result = FillRecursive(allCategories);
+
+        return new OkObjectResult(result);
+    }
+
+    private IEnumerable<CategoryViewModel> FillRecursive(IEnumerable<Category> allCategories)
+    {
         var result = new List<CategoryViewModel>();
         foreach (var category in allCategories)
         {
-            result.Add(new CategoryViewModel { Id = category.Id, Name = category.Name });
-        }
+            var categoryView = new CategoryViewModel { Id = category.Id, Name = category.Name, Subcategories = new List<CategoryViewModel>() };
 
-        return new OkObjectResult(result);
+            categoryView.Subcategories = FillRecursive(category.ChildCategories);
+
+            result.Add(categoryView);
+        }
+        return result;
     }
 
     // GET: api/Categories/Section/5

@@ -23,24 +23,34 @@ public class CategoryRepository : ICategoryRepository
     public async Task<IEnumerable<Category>> GetCategoriesByParent(int parentId)
     {
         var categories = await _dbContext.Categories.Where(c => c.ParentCategoryId == parentId).ToListAsync();
+
+        foreach (var category in categories)
+        {
+            category.ChildCategories = (ICollection<Category>)await GetCategoriesByParent(category.Id);
+        }
+
         return categories;
     }
 
     public async Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId)
     {
-        var categories = await _dbContext.Categories.Where(c => c.CategoriesSections.Any(cs => cs.SectionId == sectionId)).ToListAsync();
+        var categories = await _dbContext.Categories.
+            Where(c => c.CategoriesSections.Any(cs => cs.SectionId == sectionId)).
+            ToListAsync();
         return categories;
     }
 
     public async Task<Category> GetCategoryById(int id)
     {
-        var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _dbContext.Categories.
+            FirstOrDefaultAsync(c => c.Id == id);
         return category;
     }
 
     public async Task<Category> GetCategoryByName(string categoryName)
     {
-        var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Name == categoryName);
+        var category = await _dbContext.Categories.
+            FirstOrDefaultAsync(c => c.Name == categoryName);
         return category;
     }
 
@@ -65,5 +75,13 @@ public class CategoryRepository : ICategoryRepository
     public async Task Save()
     {
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Category>> GetTopLevelCategories()
+    {
+        var allCategories = await _dbContext.Categories.
+            Where(c => c.ParentCategoryId == null).
+            ToListAsync();
+        return allCategories;
     }
 }

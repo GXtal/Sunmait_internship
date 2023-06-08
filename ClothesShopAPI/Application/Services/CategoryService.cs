@@ -34,9 +34,9 @@ public class CategoryService : ICategoryService
         await _categoryRepository.AddCategory(category);
     }
 
-    public async Task<IEnumerable<Category>> GetCategories()
+    public async Task<IEnumerable<Category>> GetTopLevelCategories()
     {
-        var categories = await _categoryRepository.GetCategories();
+        var categories = await _categoryRepository.GetTopLevelCategories();
         return categories;
     }
 
@@ -55,9 +55,13 @@ public class CategoryService : ICategoryService
             {
                 throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, parentId));
             }
+            category.ParentCategoryId = parentId;
+        }
+        else
+        {
+            category.ParentCategoryId = null;
         }
 
-        category.ParentCategoryId = parentId;
         await _categoryRepository.UpdateCategory(category);
     }
 
@@ -167,7 +171,7 @@ public class CategoryService : ICategoryService
         return categories;
     }
 
-    public async Task<IEnumerable<Category>> GetCategoriesByParent(int parentId)
+    public async Task<IEnumerable<Category>> GetCategoriesTreeByParent(int parentId)
     {
         var parent = await _categoryRepository.GetCategoryById(parentId);
         if (parent == null)

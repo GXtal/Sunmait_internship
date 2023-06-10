@@ -19,6 +19,12 @@ public class ContactService : IContactService
 
     public async Task AddContact(int userId, string phoneNumber)
     {
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+
         var contact = new Contact() { PhoneNumber = phoneNumber, UserId = userId };
         await _contactRepository.AddContact(contact);
     }
@@ -31,8 +37,8 @@ public class ContactService : IContactService
             throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
         }
 
-        var contactes = await _contactRepository.GetContactsByUser(user);
-        return contactes;
+        var contacts = await _contactRepository.GetContactsByUser(user);
+        return contacts;
     }
 
     public async Task RemoveContact(int id)

@@ -18,6 +18,7 @@ public class BrandController : ControllerBase
 
     // GET api/Brands
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BrandViewModel>))]
     public async Task<IActionResult> GetBrands()
     {
         var allBrands = await _brandService.GetBrands();
@@ -33,6 +34,8 @@ public class BrandController : ControllerBase
 
     // POST api/Brands
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddBrand([FromBody] BrandInputModel newBrand)
     {
         await _brandService.AddBrand(newBrand.Name);
@@ -41,6 +44,9 @@ public class BrandController : ControllerBase
 
     // PUT api/Brands/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateBrand([FromRoute] int id, [FromBody] BrandInputModel newBrand)
     {
         await _brandService.RenameBrand(id, newBrand.Name);
@@ -49,6 +55,9 @@ public class BrandController : ControllerBase
 
     // DELETE api/Brands/5
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveBrand([FromRoute] int id)
     {
         await _brandService.RemoveBrand(id);

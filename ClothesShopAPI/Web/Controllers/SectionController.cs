@@ -18,6 +18,7 @@ public class SectionController : ControllerBase
 
     // GET: api/Sections
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SectionViewModel>))]
     public async Task<IActionResult> GetSections()
     {
         var allSections = await _sectionService.GetSections();
@@ -33,6 +34,8 @@ public class SectionController : ControllerBase
 
     // POST api/Sections
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddSection([FromBody] SectionInputModel newSection)
     {
         await _sectionService.AddSection(newSection.Name);
@@ -41,6 +44,9 @@ public class SectionController : ControllerBase
 
     // PUT api/Sections/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateSection([FromRoute] int id, [FromBody] SectionInputModel newSection)
     {
         await _sectionService.RenameSection(id, newSection.Name);
@@ -49,6 +55,9 @@ public class SectionController : ControllerBase
 
     // DELETE api/Sections/5
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveSection([FromRoute] int id)
     {
         await _sectionService.RemoveSection(id);

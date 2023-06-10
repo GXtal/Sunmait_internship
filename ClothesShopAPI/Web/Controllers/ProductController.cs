@@ -20,6 +20,7 @@ public class ProductController : ControllerBase
 
     // GET: api/Products
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductViewModel>))]
     public async Task<IActionResult> GetProducts()
     {
         var allProducts = await _productService.GetProducts();
@@ -46,6 +47,8 @@ public class ProductController : ControllerBase
 
     // GET: api/Products/Brand/5
     [HttpGet("Brand/{brandId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductsByBrand([FromRoute] int brandId)
     {
         var allProducts = await _productService.GetProductsByBrand(brandId);
@@ -72,6 +75,8 @@ public class ProductController : ControllerBase
 
     // GET: api/Products/Category/5
     [HttpGet("Category/{categoryId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductsByCategory([FromRoute] int categoryId)
     {
         var allProducts = await _productService.GetProductsByCategory(categoryId);
@@ -98,6 +103,8 @@ public class ProductController : ControllerBase
 
     // GET api/Products/5
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductViewModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {
         var product = await _productService.GetProduct(id);
@@ -118,6 +125,8 @@ public class ProductController : ControllerBase
 
     // POST api/Products
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddProduct([FromBody] ProductInputModel newProduct)
     {
         await _productService.AddProduct(newProduct.Name, newProduct.Description,
@@ -127,6 +136,9 @@ public class ProductController : ControllerBase
 
     // PUT api/Products/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductInputModel newProduct)
     {
         await _productService.UpdateProduct(id, newProduct.Name, newProduct.Description,
@@ -136,6 +148,8 @@ public class ProductController : ControllerBase
 
     // GET api/Products/Orders/5
     [HttpGet("Orders/{orderId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderProductViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetOrderProducts([FromRoute] int orderId)
     {
         var orderProducts = await _productService.GetOrderProducts(orderId);

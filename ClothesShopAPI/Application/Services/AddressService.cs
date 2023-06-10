@@ -19,6 +19,12 @@ public class AddressService : IAddressService
 
     public async Task AddAddress(int userId, string fullAddress)
     {
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+
         var address = new Address() { FullAddress = fullAddress, UserId = userId };
         await _addressRepository.AddAddress(address);
     }

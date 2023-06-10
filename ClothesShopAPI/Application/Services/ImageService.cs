@@ -32,6 +32,10 @@ public class ImageService : IImageService
     public async Task<Image> GetImageById(int id)
     {
         var image = await _imageRepository.GetImageById(id);
+        if (image == null)
+        {
+            throw new NotFoundException(String.Format(ImageExceptionsMessages.ImageNotFound, id));
+        }
 
         return image;
     }

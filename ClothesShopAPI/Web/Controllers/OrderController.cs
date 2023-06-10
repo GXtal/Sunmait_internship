@@ -19,6 +19,8 @@ public class OrderController : ControllerBase
 
     // GET api/Orders/5
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderViewModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
         var order = await _orderService.GetOrder(id);
@@ -28,6 +30,8 @@ public class OrderController : ControllerBase
 
     // GET api/Orders/5/History
     [HttpGet("{id}/History")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderHistoryViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetOrderHistory([FromRoute] int id)
     {
         var history = await _orderService.GetOrderHistory(id);
@@ -47,6 +51,9 @@ public class OrderController : ControllerBase
 
     // POST api/Orders/5/History/3
     [HttpPost("{id}/History/{statusId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddStatusToOrder([FromRoute] int id, [FromRoute] int statusId)
     {
         await _orderService.AddOrderStatus(id, statusId);
@@ -55,6 +62,8 @@ public class OrderController : ControllerBase
 
     // GET api/Orders/User/5
     [HttpGet("Users/{userId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderViewModel>))]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
         var allOrders = await _orderService.GetOrders(userId);
@@ -70,6 +79,9 @@ public class OrderController : ControllerBase
 
     // POST api/Orders/User/5
     [HttpPost("Users/{userId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddOrder([FromRoute] int userId, [FromBody] IEnumerable<OrderProductInputModel> orderProducts)
     {
         var productsToAdd = new List<OrderProduct>();

@@ -11,21 +11,20 @@ namespace Web.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly IOrderService _orderService;
     private readonly IContactService _contactService;
     private readonly IAddressService _addressService;
 
-    public UserController(IUserService userService, IOrderService orderService,
-        IContactService contactService, IAddressService addressService)
+    public UserController(IUserService userService, IContactService contactService, IAddressService addressService)
     {
         _userService = userService;
-        _orderService = orderService;
         _contactService = contactService;
         _addressService = addressService;
     }
 
     // GET api/Users/5
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserViewModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserById([FromRoute] int id)
     {
         var user = await _userService.GetUserInfo(id);
@@ -43,6 +42,9 @@ public class UserController : ControllerBase
 
     // POST api/Users/login
     [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserViewModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] LoginInputModel credentials)
     {
         var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
@@ -60,6 +62,8 @@ public class UserController : ControllerBase
 
     // POST api/Users/register
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserViewModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterInputModel credentials)
     {
         var user = await _userService.Register(credentials.Email, credentials.PasswordHash, credentials.Name, credentials.Surname);
@@ -75,8 +79,10 @@ public class UserController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // PUT api/Users/register
+    // PUT api/Users/5
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserInfoInput credentials)
     {
         await _userService.SetUserInfo(id, credentials.Name, credentials.Surname);
@@ -85,6 +91,8 @@ public class UserController : ControllerBase
 
     // POST api/Users/5/Contacts
     [HttpPost("{userId}/Contacts")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddContact([FromRoute] int userId, [FromBody] ContactInputModel newContact)
     {
         await _contactService.AddContact(userId, newContact.PhoneNumber);
@@ -93,6 +101,8 @@ public class UserController : ControllerBase
 
     // DELETE api/Users/5/Contacts/3
     [HttpDelete("{userId}/Contacts/{contactId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveContact([FromRoute] int contactId)
     {
         await _contactService.RemoveContact(contactId);
@@ -101,6 +111,8 @@ public class UserController : ControllerBase
 
     // GET: api/Users/5/Contacts
     [HttpGet("{userId}/Contacts")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ContactViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetContacts([FromRoute] int userId)
     {
         var allContacts = await _contactService.GetContacts(userId);
@@ -116,6 +128,8 @@ public class UserController : ControllerBase
 
     // POST api/Users/5/Addresses
     [HttpPost("{userId}/Addresses")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddAddress([FromRoute] int userId, [FromBody] AddressInputModel newAddress)
     {
         await _addressService.AddAddress(userId, newAddress.FullAddress);
@@ -124,6 +138,8 @@ public class UserController : ControllerBase
 
     // DELETE api/Users/5/Addresses/3
     [HttpDelete("{userId}/Addresses/{addressId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveAddress([FromRoute] int addressId)
     {
         await _addressService.RemoveAddress(addressId);
@@ -132,6 +148,8 @@ public class UserController : ControllerBase
 
     // GET: api/Users/5/Addresses
     [HttpGet("{userId}/Addresses")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AddressViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAddresses([FromRoute] int userId)
     {
         var allAddresses = await _addressService.GetAddresses(userId);

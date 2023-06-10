@@ -18,6 +18,8 @@ public class ReviewController : ControllerBase
 
     // POST api/Reviews
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddReview([FromBody] ReviewInputModel newReview)
     {
         await _reviewService.AddReview(newReview.Comment, newReview.Rating, newReview.ProductId, newReview.UserId);
@@ -26,6 +28,8 @@ public class ReviewController : ControllerBase
 
     // DELETE api/Reviews/5
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveReview([FromRoute] int id)
     {
         await _reviewService.RemoveReview(id);
@@ -34,6 +38,8 @@ public class ReviewController : ControllerBase
 
     // GET: api/Reviews/Products/5
     [HttpGet("Products/{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ReviewViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductReviews([FromRoute] int productId)
     {
         var allReviews = await _reviewService.GetReviews(productId);

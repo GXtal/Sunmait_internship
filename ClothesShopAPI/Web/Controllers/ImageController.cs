@@ -21,6 +21,8 @@ public class ImageController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddImage([FromForm] ImageInputModel newImage)
     {
         if (newImage.formFile.Length > 0)
@@ -38,6 +40,8 @@ public class ImageController : ControllerBase
     }
 
     [HttpGet("/Products/{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetImageIdsByProduct([FromRoute] int productId)
     {
         var imageIds = await _imageService.GetImageIdsByProduct(productId);
@@ -53,6 +57,8 @@ public class ImageController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(byte[]))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetImageById([FromRoute] int id)
     {
         var image = await _imageService.GetImageById(id);
@@ -63,6 +69,8 @@ public class ImageController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveImage([FromRoute] int id)
     {
         await _imageService.RemoveImage(id);

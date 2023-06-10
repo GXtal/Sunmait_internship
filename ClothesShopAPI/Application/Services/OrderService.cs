@@ -3,20 +3,13 @@ using Domain.Interfaces.Services;
 using Domain.Interfaces.Repositories;
 using Application.Exceptions;
 using Application.Exceptions.Messages;
+using Domain.Enums;
 
 namespace Application.Services;
 
 public class OrderService : IOrderService
 {
-    public const int AwaitingConfirmation = 1;
-    public const int Delivering = 2;
-    public const int Completed = 3;
-    public const int Canceled = 4;
-
-    private readonly bool[,] _possibilities = { { true, true, false, true },
-                                                { true, true, true, true },
-                                                { false, false, true, false },
-                                                { true, false, false, true } };
+    private readonly Dictionary<OrderStatus, List<OrderStatus>> _possibilities;
 
     private readonly IUserRepository _userRepository;
     private readonly IOrderRepository _orderRepository;
@@ -35,6 +28,19 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _orderProductRepository = orderProductRepository;
         _statusRepository = statusRepository;
+
+        _possibilities = new Dictionary<OrderStatus, List<OrderStatus>>();
+        var awaitingConfirmationNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Delivering, OrderStatus.Canceled };
+        _possibilities.Add(OrderStatus.AwaitingConfirmation, awaitingConfirmationNext);
+
+        var deliveringNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Delivering, OrderStatus.Canceled, OrderStatus.Completed };
+        _possibilities.Add(OrderStatus.Delivering, deliveringNext);
+
+        var completedNext = new List<OrderStatus>() { OrderStatus.Completed };
+        _possibilities.Add(OrderStatus.Completed, completedNext);
+
+        var canceledNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Canceled };
+        _possibilities.Add(OrderStatus.Canceled, canceledNext);
     }
 
     public async Task AddOrderStatus(int id, int statusId)
@@ -55,7 +61,9 @@ public class OrderService : IOrderService
 
         history = history.OrderByDescending(x => x.SetTime).ToList();
 
-        if (!_possibilities[history.First().StatusId - 1, statusId - 1])
+        
+
+        if (!_possibilities[(OrderStatus)history.First().StatusId].Any(s => s == (OrderStatus)statusId))
         {
             throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id, statusId));
         }

@@ -42,10 +42,10 @@ public class CategoryRepository : ICategoryRepository
             newParentIds.Add(category.Id);
         }
 
-        if(newParentIds.Count > 0)
+        if (newParentIds.Count > 0)
         {
             var children = await GetCategoriesByParentRecursive(newParentIds);
-        }                
+        }
 
         return categories;
     }

@@ -48,7 +48,7 @@ public class OrderService : IOrderService
         if (status == null)
         {
             throw new NotFoundException(String.Format(StatusExceptionsMessages.StatusNotFound, statusId));
-        }    
+        }
 
         if (!_possibilities[(OrderStatus)order.StatusId].Any(s => s == (OrderStatus)statusId))
         {

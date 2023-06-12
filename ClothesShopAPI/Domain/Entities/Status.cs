@@ -7,5 +7,5 @@ public class Status
 
     public ICollection<OrderHistory> OrderHistories { get; set; }
 
-    public ICollection<Order> Orders { get; set;}
+    public ICollection<Order> Orders { get; set; }
 }

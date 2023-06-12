@@ -22,12 +22,30 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IEnumerable<Category>> GetCategoriesByParent(int parentId)
     {
-        var categories = await _dbContext.Categories.Where(c => c.ParentCategoryId == parentId).ToListAsync();
+        var parentIds = new List<int?>() { parentId };
 
+        var categories = await GetCategoriesByParentRecursive(parentIds);
+
+        return categories;
+    }
+
+    private async Task<IEnumerable<Category>> GetCategoriesByParentRecursive(List<int?> parentIds)
+    {
+        var categories = await _dbContext.Categories.
+            Where(c => parentIds.Contains(c.ParentCategoryId)).
+            ToListAsync();
+
+        var newParentIds = new List<int?>();
         foreach (var category in categories)
         {
-            category.ChildCategories = (ICollection<Category>)await GetCategoriesByParent(category.Id);
+            category.ChildCategories = new List<Category>();
+            newParentIds.Add(category.Id);
         }
+
+        if(newParentIds.Count > 0)
+        {
+            var children = await GetCategoriesByParentRecursive(newParentIds);
+        }                
 
         return categories;
     }

@@ -45,7 +45,7 @@ public class ReviewService : IReviewService
             throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, productId));
         }
 
-        var reviews = await _reviewRepository.GetReviewsByProduct(product);
+        var reviews = await _reviewRepository.GetReviewsByProduct(product.Id);
         return reviews;
     }
 

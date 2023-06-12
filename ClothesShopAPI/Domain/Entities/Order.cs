@@ -8,6 +8,10 @@ public class Order
 
     public decimal TotalCost { get; set; }
 
+    public int StatusId { get; set; }
+
+    public Status Status { get; set; }
+
     public ICollection<OrderHistory> OrderHistories { get; set; }
 
     public ICollection<OrderProduct> OrdersProducts { get; set; }

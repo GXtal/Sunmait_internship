@@ -9,7 +9,13 @@ namespace Application.Services;
 
 public class OrderService : IOrderService
 {
-    private readonly Dictionary<OrderStatus, List<OrderStatus>> _possibilities;
+    private readonly Dictionary<OrderStatus, List<OrderStatus>> _possibilities = new Dictionary<OrderStatus, List<OrderStatus>>()
+    {
+        { OrderStatus.AwaitingConfirmation, new List<OrderStatus>() { OrderStatus.Delivering, OrderStatus.Canceled } },
+        { OrderStatus.Delivering, new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Canceled, OrderStatus.Completed } },
+        { OrderStatus.Completed, new List<OrderStatus>() },
+        { OrderStatus.Canceled, new List<OrderStatus>() }
+    };
 
     private readonly IUserRepository _userRepository;
     private readonly IOrderRepository _orderRepository;
@@ -28,19 +34,6 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _orderProductRepository = orderProductRepository;
         _statusRepository = statusRepository;
-
-        _possibilities = new Dictionary<OrderStatus, List<OrderStatus>>();
-        var awaitingConfirmationNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Delivering, OrderStatus.Canceled };
-        _possibilities.Add(OrderStatus.AwaitingConfirmation, awaitingConfirmationNext);
-
-        var deliveringNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Delivering, OrderStatus.Canceled, OrderStatus.Completed };
-        _possibilities.Add(OrderStatus.Delivering, deliveringNext);
-
-        var completedNext = new List<OrderStatus>() { OrderStatus.Completed };
-        _possibilities.Add(OrderStatus.Completed, completedNext);
-
-        var canceledNext = new List<OrderStatus>() { OrderStatus.AwaitingConfirmation, OrderStatus.Canceled };
-        _possibilities.Add(OrderStatus.Canceled, canceledNext);
     }
 
     public async Task AddOrderStatus(int id, int statusId)
@@ -55,21 +48,18 @@ public class OrderService : IOrderService
         if (status == null)
         {
             throw new NotFoundException(String.Format(StatusExceptionsMessages.StatusNotFound, statusId));
-        }
+        }    
 
-        var history = await _orderHistoryRepository.GetHistoryByOrder(order);
-
-        history = history.OrderByDescending(x => x.SetTime).ToList();
-
-        
-
-        if (!_possibilities[(OrderStatus)history.First().StatusId].Any(s => s == (OrderStatus)statusId))
+        if (!_possibilities[(OrderStatus)order.StatusId].Any(s => s == (OrderStatus)statusId))
         {
             throw new BadRequestException(String.Format(OrderExceptionsMessages.OrderUnchangeable, id, statusId));
         }
 
         var orderHistory = new OrderHistory() { OrderId = id, StatusId = statusId, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
+
+        order.StatusId = statusId;
+        await _orderRepository.UpdateOrder(order);
     }
 
     public async Task AddOrder(int userId, IEnumerable<OrderProduct> orderProducts)
@@ -80,11 +70,7 @@ public class OrderService : IOrderService
             throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
         }
 
-        var order = new Order() { UserId = userId, TotalCost = 0 };
-        order = await _orderRepository.AddOrder(order);
-
-        var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = AwaitingConfirmation, SetTime = DateTime.Now };
-        await _orderHistoryRepository.AddHistory(orderHistory);
+        var order = new Order() { UserId = userId, TotalCost = 0, StatusId = (int)OrderStatus.AwaitingConfirmation };
 
         foreach (var orderProduct in orderProducts)
         {
@@ -98,6 +84,16 @@ public class OrderService : IOrderService
             {
                 throw new BadRequestException(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, orderProduct.ProductId));
             }
+        }
+
+        order = await _orderRepository.AddOrder(order);
+
+        var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = (int)OrderStatus.AwaitingConfirmation, SetTime = DateTime.Now };
+        await _orderHistoryRepository.AddHistory(orderHistory);
+
+        foreach (var orderProduct in orderProducts)
+        {
+            var product = await _productRepository.GetProductById(orderProduct.ProductId);
 
             orderProduct.OrderId = order.Id;
             await _orderProductRepository.AddOrderProduct(orderProduct);

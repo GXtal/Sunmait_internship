@@ -69,15 +69,4 @@ public class ProductRepository : IProductRepository
     {
         await _dbContext.SaveChangesAsync();
     }
-
-    public async Task<IEnumerable<Product>> GetProductsBySection(Section section)
-    {
-        var products = await _dbContext.Products.
-            Include(p => p.Brand).
-            Include(p => p.Category).
-            ThenInclude(c => c.CategoriesSections).
-            Where(p => p.Category.CategoriesSections.Any(cs => cs.SectionId == section.Id)).
-            ToListAsync();
-        return products;
-    }
 }

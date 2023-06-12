@@ -7,4 +7,6 @@ public class OrderViewModel
     public int UserId { get; set; }
 
     public decimal TotalCost { get; set; }
+
+    public int StatusId { get; set; }
 }

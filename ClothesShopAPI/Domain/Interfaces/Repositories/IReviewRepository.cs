@@ -8,7 +8,7 @@ public interface IReviewRepository
 
     public Task<Review> GetReviewById(int id);
 
-    public Task<IEnumerable<Review>> GetReviewsByProduct(Product product);
+    public Task<IEnumerable<Review>> GetReviewsByProduct(int productId);
 
     public Task RemoveReview(Review review);
 

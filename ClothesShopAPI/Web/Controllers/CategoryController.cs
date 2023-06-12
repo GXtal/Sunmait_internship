@@ -83,7 +83,7 @@ public class CategoryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddCategory([FromBody] CategoryInputModel newCategory)
     {
-        await _categoryService.AddCategory(newCategory.Name);
+        await _categoryService.AddCategory(newCategory.Name, newCategory.ParentId, newCategory.SectionId);
         return new OkResult();
     }
 
@@ -113,7 +113,7 @@ public class CategoryController : ControllerBase
     [HttpPost("{id}/Parent/{parentId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> LinkCategoryToParent([FromRoute] int id, [FromRoute] int parentId)
+    public async Task<IActionResult> LinkCategoryToParent([FromRoute] int id, [FromRoute] int? parentId)
     {
         await _categoryService.LinkCategoryToParent(id, parentId);
         return new OkResult();
@@ -137,7 +137,7 @@ public class CategoryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UnlinkCategoryFromSection([FromRoute] int id, [FromRoute] int sectionId)
     {
-        await _categoryService.UnlinkCategoryToSection(id, sectionId);
+        await _categoryService.UnlinkCategoryFromSection(id, sectionId);
         return new OkResult();
     }
 }

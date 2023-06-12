@@ -14,8 +14,6 @@ public interface IProductRepository
 
     public Task<IEnumerable<Product>> GetProductsByCategory(Category category);
 
-    public Task<IEnumerable<Product>> GetProductsBySection(Section section);
-
     public Task UpdateProduct(Product product);
 
     public Task Save();

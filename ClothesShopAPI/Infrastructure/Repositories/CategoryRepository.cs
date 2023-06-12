@@ -34,8 +34,9 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IEnumerable<Category>> GetCategoriesBySection(int sectionId)
     {
-        var categories = await _dbContext.Categories.
-            Where(c => c.CategoriesSections.Any(cs => cs.SectionId == sectionId)).
+        var categories = await _dbContext.CategoriesSections.
+            Where(cs => cs.SectionId == sectionId).
+            Select(c => c.Category).
             ToListAsync();
         return categories;
     }

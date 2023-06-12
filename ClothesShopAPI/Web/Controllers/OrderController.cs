@@ -24,7 +24,13 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
         var order = await _orderService.GetOrder(id);
-        var result = new OrderViewModel() { Id = order.Id, TotalCost = order.TotalCost, UserId = order.UserId };
+        var result = new OrderViewModel()
+        {
+            Id = order.Id,
+            TotalCost = order.TotalCost,
+            UserId = order.UserId,
+            StatusId = order.StatusId
+        };
         return new OkObjectResult(result);
     }
 
@@ -71,7 +77,13 @@ public class OrderController : ControllerBase
         var result = new List<OrderViewModel>();
         foreach (var order in allOrders)
         {
-            result.Add(new OrderViewModel { Id = order.Id, TotalCost = order.TotalCost, UserId = order.UserId });
+            result.Add(new OrderViewModel()
+            {
+                Id = order.Id,
+                TotalCost = order.TotalCost,
+                UserId = order.UserId,
+                StatusId = order.StatusId
+            });
         }
 
         return new OkObjectResult(result);

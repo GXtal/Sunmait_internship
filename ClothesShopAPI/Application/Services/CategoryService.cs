@@ -22,7 +22,7 @@ public class CategoryService : ICategoryService
         _categorySectionRepository = categorySectionRepository;
     }
 
-    public async Task AddCategory(string newCategoryName)
+    public async Task AddCategory(string newCategoryName, int? parentId, int sectionId)
     {
         var existingCategory = await _categoryRepository.GetCategoryByName(newCategoryName);
         if (existingCategory != null)
@@ -30,8 +30,26 @@ public class CategoryService : ICategoryService
             throw new BadRequestException(String.Format(CategoryExceptionsMessages.CategoryNameExists, newCategoryName));
         }
 
-        var category = new Category { Name = newCategoryName };
-        await _categoryRepository.AddCategory(category);
+        if (parentId != null)
+        {
+            var parentCategory = await _categoryRepository.GetCategoryById((int)parentId);
+            if (parentCategory == null)
+            {
+                throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, parentId));
+            }
+        }
+
+        var section = await _sectionRepository.GetSectionById(sectionId);
+        if (section == null)
+        {
+            throw new NotFoundException(String.Format(SectionExceptionsMessages.SectionNotFound, sectionId));
+        }
+
+        var category = new Category { Name = newCategoryName, ParentCategoryId = parentId };
+        category = await _categoryRepository.AddCategory(category);
+
+        var categorySection = new CategorySection() { CategoryId = category.Id, SectionId = sectionId };
+        await _categorySectionRepository.AddCategorySection(categorySection);
     }
 
     public async Task<IEnumerable<Category>> GetTopLevelCategories()
@@ -40,7 +58,7 @@ public class CategoryService : ICategoryService
         return categories;
     }
 
-    public async Task LinkCategoryToParent(int id, int parentId)
+    public async Task LinkCategoryToParent(int id, int? parentId)
     {
         var category = await _categoryRepository.GetCategoryById(id);
         if (category == null)
@@ -48,9 +66,9 @@ public class CategoryService : ICategoryService
             throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, id));
         }
 
-        if (parentId != 0)
+        if (parentId != null)
         {
-            var parentCategory = await _categoryRepository.GetCategoryById(parentId);
+            var parentCategory = await _categoryRepository.GetCategoryById((int)parentId);
             if (parentCategory == null)
             {
                 throw new NotFoundException(String.Format(CategoryExceptionsMessages.CategoryNotFound, parentId));
@@ -89,7 +107,7 @@ public class CategoryService : ICategoryService
         await _categorySectionRepository.AddCategorySection(categorySection);
     }
 
-    public async Task UnlinkCategoryToSection(int id, int sectionId)
+    public async Task UnlinkCategoryFromSection(int id, int sectionId)
     {
         var category = await _categoryRepository.GetCategoryById(id);
         if (category == null)

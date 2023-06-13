@@ -124,7 +124,7 @@ public class CategoryService : ICategoryService
         var categorySection = await _categorySectionRepository.GetCategorySection(category, section);
         if (categorySection == null)
         {
-            throw new NotFoundException(String.Format(CategorySectionExceptionsMessages.CategorySectionExists, id, sectionId));
+            throw new NotFoundException(String.Format(CategorySectionExceptionsMessages.CategorySectionNotFound, id, sectionId));
         }
 
         await _categorySectionRepository.RemoveCategorySection(categorySection);

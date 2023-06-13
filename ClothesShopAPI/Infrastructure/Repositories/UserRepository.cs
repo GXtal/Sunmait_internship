@@ -16,8 +16,11 @@ public class UserRepository : IUserRepository
 
     public async Task<User> AddUser(User user)
     {
-        _dbContext.Add(user);
+        _dbContext.Add(user);        
         await Save();
+
+        var role = _dbContext.Roles.Single( r => user.RoleId == r.Id );
+
         return user;
     }
 

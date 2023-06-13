@@ -20,10 +20,10 @@ public class ImageController : ControllerBase
         _environment = environment;
     }
 
-    [HttpPost]
+    [HttpPost("Products/{productId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddImage([FromForm] ImageInputModel newImage)
+    public async Task<IActionResult> AddImage([FromRoute] int productId,[FromForm] ImageInputModel newImage)
     {
         if (newImage.formFile.Length > 0)
         {
@@ -33,13 +33,13 @@ public class ImageController : ControllerBase
             var stream = new MemoryStream(content);
             newImage.formFile.CopyTo(stream);
 
-            await _imageService.AddImage(content, newImage.ProductId);
+            await _imageService.AddImage(content, productId);
         }
 
         return new OkResult();
     }
 
-    [HttpGet("/Products/{productId}")]
+    [HttpGet("Products/{productId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetImageIdsByProduct([FromRoute] int productId)

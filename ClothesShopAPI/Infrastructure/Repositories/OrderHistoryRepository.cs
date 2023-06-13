@@ -25,6 +25,7 @@ public class OrderHistoryRepository : IOrderHistoryRepository
         var orderHistories = await _dbContext.OrderHistories.
             Include(oh => oh.Status).
             Where(oh => oh.OrderId == order.Id).
+            OrderBy(oh => oh.SetTime).
             ToListAsync();
         return orderHistories;
     }

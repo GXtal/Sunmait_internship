@@ -53,7 +53,7 @@ public class ReviewController : ControllerBase
                 Comment = review.Comment,
                 Rating = review.Rating,
                 ProductId = review.ProductId,
-                UserId = review.ProductId,
+                UserId = review.UserId,
                 UserName = review.User.Name,
             });
         }

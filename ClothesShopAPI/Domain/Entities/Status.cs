@@ -6,4 +6,6 @@ public class Status
     public string Name { get; set; }
 
     public ICollection<OrderHistory> OrderHistories { get; set; }
+
+    public ICollection<Order> Orders { get; set; }
 }

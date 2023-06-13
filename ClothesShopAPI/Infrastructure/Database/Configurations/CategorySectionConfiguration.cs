@@ -8,12 +8,12 @@ public class CategorySectionConfiguration : IEntityTypeConfiguration<CategorySec
 {
     public void Configure(EntityTypeBuilder<CategorySection> builder)
     {
-        builder.HasKey(e => new { e.CaregoryId, e.SectionId });
+        builder.HasKey(e => new { e.CategoryId, e.SectionId });
 
         builder.HasOne(e => e.Section).WithMany(s => s.CategoriesSections)
             .HasForeignKey(e => e.SectionId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.Category).WithMany(s => s.CategoriesSections)
-            .HasForeignKey(e => e.CaregoryId).OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(e => e.CategoryId).OnDelete(DeleteBehavior.Cascade);
     }
 }

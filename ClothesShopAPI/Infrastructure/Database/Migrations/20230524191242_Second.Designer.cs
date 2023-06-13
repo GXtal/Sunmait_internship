@@ -97,13 +97,13 @@ namespace Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.CategorySection", b =>
                 {
-                    b.Property<int>("CaregoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<int>("SectionId")
                         .HasColumnType("integer");
 
-                    b.HasKey("CaregoryId", "SectionId");
+                    b.HasKey("CategoryId", "SectionId");
 
                     b.HasIndex("SectionId");
 
@@ -414,7 +414,7 @@ namespace Infrastructure.Database.Migrations
                 {
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany("CategoriesSections")
-                        .HasForeignKey("CaregoryId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

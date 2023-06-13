@@ -10,7 +10,7 @@ public interface IBrandRepository
 
     public Task<IEnumerable<Brand>> GetBrands();
 
-    public Task AddBrand(Brand brand);
+    public Task<Brand> AddBrand(Brand brand);
 
     public Task UpdateBrand(Brand brand);
 

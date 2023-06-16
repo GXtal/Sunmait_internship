@@ -16,8 +16,11 @@ public class OrderServiceUnitTest : BaseUnitTest
     {
         // Arrange
         int workingId = 1;
+        int statusId = 1;
+        int userId = 1;
+        decimal cost = 2837;
 
-        _shopDbContext.Add(new Order { Id = workingId, StatusId = 1, UserId = 1, TotalCost = 0 });
+        _shopDbContext.Add(new Order { Id = workingId, StatusId = statusId, UserId = userId, TotalCost = cost });
         _shopDbContext.SaveChanges();
 
         SetupOrderRepository();
@@ -33,6 +36,9 @@ public class OrderServiceUnitTest : BaseUnitTest
         // Assert
         order.Should().NotBeNull();
         order.Id.Should().Be(workingId);
+        order.StatusId.Should().Be(statusId);
+        order.UserId.Should().Be(userId);
+        order.TotalCost.Should().Be(cost);
     }
 
     [Fact]

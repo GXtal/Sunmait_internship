@@ -1,11 +1,15 @@
 using Application.Exceptions;
 using Application.Exceptions.Messages;
 using Application.Services;
+using Bogus;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using FluentAssertions;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Configuration.Internal;
 
 namespace TestProject;
 
@@ -15,183 +19,285 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void GetOrderById_OrderExists()
     {
         // Arrange
-        int workingId = 1;
-        int statusId = 1;
-        int userId = 1;
-        decimal cost = 2837;
+        int workingId = faker.Random.Int(1);
+        int statusId = faker.Random.Int(1);
+        int userId = faker.Random.Int(1);
+        decimal cost = faker.Random.Decimal(1, 1000);
+        var dbName = "OrderExists";
 
-        _shopDbContext.Add(new Order { Id = workingId, StatusId = statusId, UserId = userId, TotalCost = cost });
-        _shopDbContext.SaveChanges();
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new Order { Id = workingId, StatusId = statusId, UserId = userId, TotalCost = cost });
+            dbContext.SaveChanges();
 
-        SetupOrderRepository();
+            var orderService = new OrderService(new UserRepository(dbContext),
+                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                new StatusRepository(dbContext));
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
+            // Act
+            var order = await orderService.GetOrder(workingId);
 
-        // Act
-        var order = await orderService.GetOrder(workingId);
-
-        // Assert
-        order.Should().NotBeNull();
-        order.Id.Should().Be(workingId);
-        order.StatusId.Should().Be(statusId);
-        order.UserId.Should().Be(userId);
-        order.TotalCost.Should().Be(cost);
+            // Assert
+            order.Should().NotBeNull();
+            order.Id.Should().Be(workingId);
+            order.StatusId.Should().Be(statusId);
+            order.UserId.Should().Be(userId);
+            order.TotalCost.Should().Be(cost);
+        }
     }
 
     [Fact]
     public async void GetOrderById_OrderDoesNotExist()
     {
         // Arrange
-        int workingId = 1;
-        int wrongId = 2;
+        int workingId = faker.Random.Int(1);
+        int wrongId = faker.Random.Int(1);
+        var dbName = "OrderDoesNotExist";
 
-        _shopDbContext.Add(new Order { Id = workingId, StatusId = 1, UserId = 1, TotalCost = 0 });
-        _shopDbContext.SaveChanges();
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new Order
+            {
+                Id = workingId,
+                StatusId = faker.Random.Int(1),
+                UserId = faker.Random.Int(1),
+                TotalCost = faker.Random.Decimal(1, 1000)
+            });
+            dbContext.SaveChanges();
 
-        SetupOrderRepository();
+            var orderService = new OrderService(new UserRepository(dbContext),
+                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                new StatusRepository(dbContext));
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
-
-        // Act
-        // Assert
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => orderService.GetOrder(wrongId));
-        ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderNotFound, wrongId));
+            // Act
+            // Assert
+            var ex = await Assert.ThrowsAsync<NotFoundException>(() => orderService.GetOrder(wrongId));
+            ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderNotFound, wrongId));
+        }
     }
 
     [Fact]
     public async void ChangeOrderStatus_UnchangeableFromAwaitingConfirmationToCompleted()
     {
         // Arrange
-        int orderId = 1;
+        int orderId = faker.Random.Int(1);
         int oldStatusId = (int)OrderStatus.AwaitingConfirmation;
         int statusId = (int)OrderStatus.Completed;
+        var dbName = "Unchangeable";
 
-        _shopDbContext.Add(new Order { Id = orderId, StatusId = oldStatusId, UserId = 1, TotalCost = 0 });
-        _shopDbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
-        _shopDbContext.Add(new Status { Id = statusId, Name = "Completed" });
-        _shopDbContext.SaveChanges();
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new Order
+            {
+                Id = orderId,
+                StatusId = oldStatusId,
+                UserId = faker.Random.Int(1),
+                TotalCost = faker.Random.Decimal(1, 1000)
+            });
+            dbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
+            dbContext.Add(new Status { Id = statusId, Name = "Completed" });
+            dbContext.SaveChanges();
 
-        SetupOrderRepository();
-        SetupStatusRepository();
-        SetupOrderHistoryRepository();
+            var orderService = new OrderService(new UserRepository(dbContext),
+                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                new StatusRepository(dbContext));
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
-
-        // Act
-        // Assert
-        var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrderStatus(orderId, statusId));
-        ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderUnchangeable, orderId, statusId));
+            // Act
+            // Assert
+            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrderStatus(orderId, statusId));
+            ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderUnchangeable, orderId, statusId));
+        }
     }
 
     [Fact]
     public async void ChangeOrderStatus_ChangeableFromAwaitingConfirmationToDelivering()
     {
         // Arrange
-        int orderId = 1;
+        int orderId = faker.Random.Int(1);
         int oldStatusId = (int)OrderStatus.AwaitingConfirmation;
         int statusId = (int)OrderStatus.Delivering;
+        var dbName = "Changeable";
 
-        _shopDbContext.Add(new Order { Id = orderId, StatusId = oldStatusId, UserId = 1, TotalCost = 0 });
-        _shopDbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
-        _shopDbContext.Add(new Status { Id = statusId, Name = "Completed" });
-        _shopDbContext.SaveChanges();
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new Order
+            {
+                Id = orderId,
+                StatusId = oldStatusId,
+                UserId = faker.Random.Int(1),
+                TotalCost = faker.Random.Decimal(1, 1000)
+            });
+            dbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
+            dbContext.Add(new Status { Id = statusId, Name = "Completed" });
+            dbContext.SaveChanges();
 
-        SetupOrderRepository();
-        SetupStatusRepository();
-        SetupOrderHistoryRepository();
+            var orderService = new OrderService(new UserRepository(dbContext),
+                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                new StatusRepository(dbContext));
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
-
-        // Act
-        await orderService.AddOrderStatus(orderId, statusId);
+            // Act
+            await orderService.AddOrderStatus(orderId, statusId);
+        }
 
         // Assert
-        var result = _shopDbContext.OrderHistories.FirstOrDefault(oh => oh.StatusId == statusId && oh.OrderId == orderId);
-        result.Should().NotBeNull();
-        result.StatusId.Should().Be(statusId);
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            var result = dbContext.OrderHistories.FirstOrDefault(oh => oh.StatusId == statusId && oh.OrderId == orderId);
+            result.Should().NotBeNull();
+            result.StatusId.Should().Be(statusId);
+        }
     }
 
     [Fact]
     public async void AddNewOrder_PossibleProducts()
     {
         // Arrange
-        int userId = 1;
-        int count = 10;
-        int quantity = 20;
+        int userId = faker.Random.Int(1);
+        int roleId = faker.Random.Int(1);
+        int count = faker.Random.Int(1, 10);
+        int quantity = faker.Random.Int(count, 2 * count);
+        var dbName = "PossibleProducts";
 
-        _shopDbContext.Add(new User() { Id = userId, Email = "", Name = "", Surname = "", PasswordHash = "", RoleId = 1 });
-        _shopDbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
-        _shopDbContext.Add(new Product() { Id = 1, BrandId = 1, CategoryId = 1, Name = "a", Quantity = quantity, Price = 10, Description = "" });
-        _shopDbContext.Add(new Product() { Id = 2, BrandId = 1, CategoryId = 1, Name = "b", Quantity = quantity, Price = 5, Description = "" });
-        _shopDbContext.SaveChanges();
+        int brandId = faker.Random.Int(1);
+        int categoryId = faker.Random.Int(1);
 
-        SetupOrderRepository();
-        SetupProductRepository();
-        SetupUserRepository();
-        SetupOrderHistoryRepository();
-        SetupOrderProductRepository();
+        int allProductsCount = faker.Random.Int(1, 10);
+        int inputProductsCount = faker.Random.Int(1, allProductsCount);
 
-        var inputProducts = new List<OrderProduct>() { new OrderProduct() { ProductId = 1, Count = count }, new OrderProduct() { ProductId = 2, Count = count } };
+        List<OrderProduct> inputProducts;
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new User()
+            {
+                Id = userId,
+                Email = faker.Internet.Email(),
+                Name = faker.Name.FirstName(),
+                Surname = faker.Name.LastName(),
+                PasswordHash = faker.Internet.Password(),
+                RoleId = roleId
+            });
+            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            dbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
 
-        // Act
-        await orderService.AddOrder(userId, inputProducts);
+            var productFaker = new Faker<Product>()
+            .RuleFor(p => p.Id, f => f.IndexFaker + 1)
+            .RuleFor(p => p.BrandId, brandId)
+            .RuleFor(p => p.CategoryId, categoryId)
+            .RuleFor(p => p.Name, f => f.Commerce.ProductName())
+            .RuleFor(p => p.Quantity, quantity)
+            .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
+            .RuleFor(p => p.Description, f => f.Lorem.Sentence());
+            var products = productFaker.Generate(allProductsCount);
+            dbContext.AddRange(products);
+
+            dbContext.Add(new Category() { Id = categoryId, Name = faker.Commerce.Department() });
+            dbContext.Add(new Brand() { Id = brandId, Name = faker.Company.CompanyName() });
+            dbContext.SaveChanges();
+
+            var inputFaker = new Faker<OrderProduct>()
+                .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(products.ToArray()).Id)
+                .RuleFor(op => op.Count, count);
+
+            inputProducts = inputFaker.Generate(inputProductsCount);
+
+            var orderService = new OrderService(new UserRepository(dbContext),
+                    new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                    new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                    new StatusRepository(dbContext));
+
+            // Act
+            await orderService.AddOrder(userId, inputProducts);
+        }
 
         // Assert
-        var result = _shopDbContext.Orders.FirstOrDefault();
-        result.Should().NotBeNull();
-        result.StatusId.Should().Be((int)OrderStatus.AwaitingConfirmation);
-        result.UserId.Should().Be(userId);
-        result.TotalCost.Should().Be(150);
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            var result = dbContext.Orders.FirstOrDefault();
+            result.Should().NotBeNull();
+            result.StatusId.Should().Be((int)OrderStatus.AwaitingConfirmation);
+            result.UserId.Should().Be(userId);
+
+            var usedProductsIds = inputProducts.Select(ip => ip.ProductId).ToList();
+            var usedProducts = dbContext.Products.Where(p => usedProductsIds.Contains(p.Id));
+
+            usedProducts.All(up => up.Quantity == quantity - count).Should().BeTrue();
+
+            decimal cost = 0;
+            foreach (var product in usedProducts)
+            {
+                cost += product.Price * count;
+            }
+
+            result.TotalCost.Should().Be(cost);
+        }
     }
 
     [Fact]
     public async void AddNewOrder_ImpossibleProductCount()
     {
         // Arrange
-        int userId = 1;
-        int count = 10;
-        int quantity = 5;
-        int productId = 1;
+        int userId = faker.Random.Int(1);
+        int roleId = faker.Random.Int(1);
+        int quantity = faker.Random.Int(1, 10);
+        int count = faker.Random.Int(quantity, 2 * quantity);
+        var dbName = "ImpossibleProducts";
 
-        _shopDbContext.Add(new User() { Id = userId, Email = "", Name = "", Surname = "", PasswordHash = "", RoleId = 1 });
-        _shopDbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
-        _shopDbContext.Add(new Product() { Id = 1, BrandId = 1, CategoryId = 1, Name = "a", Quantity = quantity, Price = 10, Description = "" });
-        _shopDbContext.Add(new Product() { Id = 2, BrandId = 1, CategoryId = 1, Name = "b", Quantity = quantity, Price = 5, Description = "" });
-        _shopDbContext.SaveChanges();
+        int brandId = faker.Random.Int(1);
+        int categoryId = faker.Random.Int(1);
 
-        SetupOrderRepository();
-        SetupProductRepository();
-        SetupUserRepository();
-        SetupOrderHistoryRepository();
-        SetupOrderProductRepository();
+        int allProductsCount = faker.Random.Int(1, 10);
+        int inputProductsCount = faker.Random.Int(1, allProductsCount);
 
-        var inputProducts = new List<OrderProduct>() { new OrderProduct() { ProductId = productId, Count = count } };
+        List<OrderProduct> inputProducts;
 
-        var orderService = new OrderService(_userRepository.Object,
-            _orderRepository.Object, _orderHistoryRepository.Object,
-            _productRepository.Object, _orderProductRepository.Object,
-            _statusRepository.Object);
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new User()
+            {
+                Id = userId,
+                Email = faker.Internet.Email(),
+                Name = faker.Name.FirstName(),
+                Surname = faker.Name.LastName(),
+                PasswordHash = faker.Internet.Password(),
+                RoleId = roleId
+            });
+            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            dbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
 
-        // Act
-        // Assert
-        var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrder(userId, inputProducts));
-        ex.Message.Should().Match(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, productId));
+            var productFaker = new Faker<Product>()
+            .RuleFor(p => p.Id, f => f.IndexFaker + 1)
+            .RuleFor(p => p.BrandId, brandId)
+            .RuleFor(p => p.CategoryId, categoryId)
+            .RuleFor(p => p.Name, f => f.Commerce.ProductName())
+            .RuleFor(p => p.Quantity, quantity)
+            .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
+            .RuleFor(p => p.Description, f => f.Lorem.Sentence());
+            var products = productFaker.Generate(allProductsCount);
+            dbContext.AddRange(products);
+
+            dbContext.Add(new Category() { Id = categoryId, Name = faker.Commerce.Department() });
+            dbContext.Add(new Brand() { Id = brandId, Name = faker.Company.CompanyName() });
+            dbContext.SaveChanges();
+
+            var inputFaker = new Faker<OrderProduct>()
+                .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(products.ToArray()).Id)
+                .RuleFor(op => op.Count, count);
+            inputProducts = inputFaker.Generate(inputProductsCount);
+
+            var orderService = new OrderService(new UserRepository(dbContext),
+                    new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                    new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                    new StatusRepository(dbContext));
+
+            // Act
+            // Assert
+            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrder(userId, inputProducts));
+            ex.Message.Should().Match(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, inputProducts.First().ProductId));
+        }
     }
 }

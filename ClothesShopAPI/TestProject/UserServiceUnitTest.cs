@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using FluentAssertions;
+using Infrastructure.Repositories;
 using Moq;
 
 namespace TestProject;
@@ -15,43 +16,58 @@ public class UserServiceUnitTest : BaseUnitTest
     public async void Login_WrongPassword()
     {
         // Arrange
-        string email = "cat@tut.by";
-        string passwordHash = "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f";
+        string email = faker.Internet.Email();
+        string passwordHash = faker.Internet.Password();
+        int roleId = faker.Random.Int(1);
 
-        _shopDbContext.Add(new User() { Email = email, PasswordHash = passwordHash, Name = "", Surname = "" });
-        _shopDbContext.SaveChanges();
+        var dbName = "WrongPassword";
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new User()
+            {
+                Email = email,
+                RoleId = roleId,
+                PasswordHash = passwordHash,
+                Name = faker.Name.FirstName(),
+                Surname = faker.Name.LastName()
+            });
+            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            dbContext.SaveChanges();
 
-        SetupUserRepository();
+            var userService = new UserService(new UserRepository(dbContext));
 
-        var userService = new UserService(_userRepository.Object);
-
-        // Act
-        // Assert
-        var ex = await Assert.ThrowsAsync<NotAuthorizedException>(async () => await userService.Login(email, "wrong"));
-        ex.Message.Should().Match(UserExceptionsMessages.WrongPassword);
+            // Act
+            // Assert
+            var ex = await Assert.ThrowsAsync<NotAuthorizedException>(async () => await userService.Login(email, faker.Internet.Password()));
+            ex.Message.Should().Match(UserExceptionsMessages.WrongPassword);
+        }
     }
 
     [Fact]
     public async void Login_CorrectPassword()
     {
         // Arrange
-        string email = "cat@tut.by";
-        string passwordHash = "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f";
-        int userId = 1;
+        string email = faker.Internet.Email();
+        string passwordHash = faker.Internet.Password();
+        int userId = faker.Random.Int(1);
+        int roleId = faker.Random.Int(1);
 
-        _shopDbContext.Add(new User() { Id = userId, Email = email, PasswordHash = passwordHash, Name = "", Surname = "" });
-        _shopDbContext.SaveChanges();
+        var dbName = "CorrectPassword";
+        using (var dbContext = GetInMemoryContext(dbName))
+        {
+            dbContext.Add(new User() { Id = userId, Email = email, RoleId = roleId, PasswordHash = passwordHash, Name = "", Surname = "" });
+            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            dbContext.SaveChanges();
 
-        SetupUserRepository();
+            var userService = new UserService(new UserRepository(dbContext));
 
-        var userService = new UserService(_userRepository.Object);
+            // Act
+            var user = await userService.Login(email, passwordHash);
 
-        // Act
-        var user = await userService.Login(email, passwordHash);
-
-        // Assert
-        user.Should().NotBeNull();
-        user.Email.Should().Be(email);
-        user.Id.Should().Be(userId);
+            // Assert
+            user.Should().NotBeNull();
+            user.Email.Should().Be(email);
+            user.Id.Should().Be(userId);
+        }
     }
 }

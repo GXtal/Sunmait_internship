@@ -1,9 +1,11 @@
 ﻿using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Web.AuthorizationData;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -59,23 +61,23 @@ public class UserController : ControllerBase
         var config = _applicationBuilder.Configuration;
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!);
+        var key = Encoding.UTF8.GetBytes(config[ConfigurationPaths.Key]!);
 
         var claims = new List<Claim>()
         {
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Sub, credentials.Email),
             new Claim(JwtRegisteredClaimNames.Email, credentials.Email),
-            new Claim("userId", user.Id.ToString()),
-            new Claim("roleId", user.RoleId.ToString())
+            new Claim(CustomClaimNames.UserId, user.Id.ToString()),
+            new Claim(CustomClaimNames.RoleId, user.RoleId.ToString())
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.Add(tokenLifeTime),
-            Issuer = config["JwtSettings:Issuer"],
-            Audience = config["JwtSettings:Audience"],
+            Issuer = config[ConfigurationPaths.Issuer],
+            Audience = config[ConfigurationPaths.Audience],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
 
@@ -105,9 +107,11 @@ public class UserController : ControllerBase
     }
 
     // PUT api/Users/5
+    [Authorize]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserInfoInput credentials)
     {
         await _userService.SetUserInfo(id, credentials.Name, credentials.Surname);
@@ -115,9 +119,11 @@ public class UserController : ControllerBase
     }
 
     // POST api/Users/5/Contacts
+    [Authorize]
     [HttpPost("{userId}/Contacts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddContact([FromRoute] int userId, [FromBody] ContactInputModel newContact)
     {
         await _contactService.AddContact(userId, newContact.PhoneNumber);
@@ -125,9 +131,11 @@ public class UserController : ControllerBase
     }
 
     // DELETE api/Users/5/Contacts/3
+    [Authorize]
     [HttpDelete("{userId}/Contacts/{contactId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveContact([FromRoute] int contactId)
     {
         await _contactService.RemoveContact(contactId);
@@ -152,9 +160,11 @@ public class UserController : ControllerBase
     }
 
     // POST api/Users/5/Addresses
+    [Authorize]
     [HttpPost("{userId}/Addresses")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddAddress([FromRoute] int userId, [FromBody] AddressInputModel newAddress)
     {
         await _addressService.AddAddress(userId, newAddress.FullAddress);
@@ -162,9 +172,11 @@ public class UserController : ControllerBase
     }
 
     // DELETE api/Users/5/Addresses/3
+    [Authorize]
     [HttpDelete("{userId}/Addresses/{addressId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveAddress([FromRoute] int addressId)
     {
         await _addressService.RemoveAddress(addressId);

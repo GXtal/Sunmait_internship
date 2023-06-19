@@ -1,5 +1,9 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Enums;
+using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Authorization;
+using Web.AuthorizationData;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -33,9 +37,13 @@ public class SectionController : ControllerBase
     }
 
     // POST api/Sections
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddSection([FromBody] SectionInputModel newSection)
     {
         await _sectionService.AddSection(newSection.Name);
@@ -43,10 +51,14 @@ public class SectionController : ControllerBase
     }
 
     // PUT api/Sections/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateSection([FromRoute] int id, [FromBody] SectionInputModel newSection)
     {
         await _sectionService.RenameSection(id, newSection.Name);
@@ -54,10 +66,14 @@ public class SectionController : ControllerBase
     }
 
     // DELETE api/Sections/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveSection([FromRoute] int id)
     {
         await _sectionService.RemoveSection(id);

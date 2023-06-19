@@ -29,7 +29,7 @@ public class ImageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> AddImage([FromRoute] int productId,[FromForm] ImageInputModel newImage)
+    public async Task<IActionResult> AddImage([FromRoute] int productId, [FromForm] ImageInputModel newImage)
     {
         if (newImage.formFile.Length > 0)
         {

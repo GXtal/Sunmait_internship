@@ -81,7 +81,7 @@ public class UserController : ControllerBase
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);        
+        var token = tokenHandler.CreateToken(tokenDescriptor);
         var result = new TokenViewModel() { Token = tokenHandler.WriteToken(token) };
 
         return new OkObjectResult(result);

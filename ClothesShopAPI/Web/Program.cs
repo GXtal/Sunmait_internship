@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Web.Middlewares;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -30,8 +29,7 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        
+        ValidateIssuerSigningKey = true
     };
 });
 

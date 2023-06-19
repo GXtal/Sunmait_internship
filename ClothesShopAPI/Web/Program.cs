@@ -6,13 +6,41 @@ using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Web.Middlewares;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var config = builder.Configuration;
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidIssuer = config["JwtSettings:Issuer"],
+        ValidAudience = config["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        
+    };
+});
+
+builder.Services.AddAuthorization();
+
 // Add services to the container.
-builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbConnection")));
+builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(config.GetConnectionString("ShopDbConnection")));
 // Add injections
 
+builder.Services.AddSingleton(builder);
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
 builder.Services.AddTransient<ISectionRepository, SectionRepository>();
@@ -62,6 +90,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ErrorMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

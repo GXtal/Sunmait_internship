@@ -2,9 +2,11 @@
 using Domain.Interfaces.Services;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers;
 
+[Authorize]
 [Route("api/Brands")]
 [ApiController]
 public class BrandController : ControllerBase

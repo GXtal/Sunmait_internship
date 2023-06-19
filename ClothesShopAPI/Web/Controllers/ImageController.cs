@@ -12,12 +12,10 @@ public class ImageController : ControllerBase
     private const string MimeType = "image/png";
 
     private readonly IImageService _imageService;
-    private readonly IWebHostEnvironment _environment;
 
-    public ImageController(IImageService imageService, IWebHostEnvironment environment)
+    public ImageController(IImageService imageService)
     {
         _imageService = imageService;
-        _environment = environment;
     }
 
     [HttpPost("Products/{productId}")]

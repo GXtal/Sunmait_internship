@@ -1,6 +1,9 @@
-﻿using Application.Services;
-using Domain.Interfaces.Services;
+﻿using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -14,11 +17,15 @@ public class UserController : ControllerBase
     private readonly IContactService _contactService;
     private readonly IAddressService _addressService;
 
-    public UserController(IUserService userService, IContactService contactService, IAddressService addressService)
+    private static readonly TimeSpan tokenLifeTime = TimeSpan.FromMinutes(20);
+    private readonly WebApplicationBuilder _applicationBuilder;
+
+    public UserController(IUserService userService, IContactService contactService, IAddressService addressService, WebApplicationBuilder applicationBuilder)
     {
         _userService = userService;
         _contactService = contactService;
         _addressService = addressService;
+        _applicationBuilder = applicationBuilder;
     }
 
     // GET api/Users/5
@@ -42,21 +49,39 @@ public class UserController : ControllerBase
 
     // POST api/Users/login
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserViewModel))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] LoginInputModel credentials)
     {
         var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
-        var result = new UserViewModel()
+
+        var config = _applicationBuilder.Configuration;
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!);
+
+        var claims = new List<Claim>()
         {
-            Id = user.Id,
-            Name = user.Name,
-            Surname = user.Surname,
-            Email = user.Email,
-            RoleId = user.RoleId,
-            RoleName = user.Role.Name,
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, credentials.Email),
+            new Claim(JwtRegisteredClaimNames.Email, credentials.Email),
+            new Claim("userId", user.Id.ToString()),
+            new Claim("roleId", user.RoleId.ToString())
         };
+
+        var tokenDescriptor = new SecurityTokenDescriptor()
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.Add(tokenLifeTime),
+            Issuer = config["JwtSettings:Issuer"],
+            Audience = config["JwtSettings:Audience"],
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);        
+        var result = new TokenViewModel() { Token = tokenHandler.WriteToken(token) };
+
         return new OkObjectResult(result);
     }
 

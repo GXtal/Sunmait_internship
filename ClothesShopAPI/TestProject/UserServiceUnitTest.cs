@@ -16,29 +16,17 @@ public class UserServiceUnitTest : BaseUnitTest
     public async void Login_WrongPassword()
     {
         // Arrange
-        string email = faker.Internet.Email();
-        string passwordHash = faker.Internet.Password();
-        int roleId = faker.Random.Int(1);
-
         var dbName = "WrongPassword";
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new User()
-            {
-                Email = email,
-                RoleId = roleId,
-                PasswordHash = passwordHash,
-                Name = faker.Name.FirstName(),
-                Surname = faker.Name.LastName()
-            });
-            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            var user = AddUser(dbContext);
             dbContext.SaveChanges();
 
             var userService = new UserService(new UserRepository(dbContext));
 
             // Act
             // Assert
-            var ex = await Assert.ThrowsAsync<NotAuthorizedException>(async () => await userService.Login(email, faker.Internet.Password()));
+            var ex = await Assert.ThrowsAsync<NotAuthorizedException>(async () => await userService.Login(user.Email, faker.Internet.Password()));
             ex.Message.Should().Match(UserExceptionsMessages.WrongPassword);
         }
     }
@@ -47,27 +35,22 @@ public class UserServiceUnitTest : BaseUnitTest
     public async void Login_CorrectPassword()
     {
         // Arrange
-        string email = faker.Internet.Email();
-        string passwordHash = faker.Internet.Password();
-        int userId = faker.Random.Int(1);
-        int roleId = faker.Random.Int(1);
 
         var dbName = "CorrectPassword";
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new User() { Id = userId, Email = email, RoleId = roleId, PasswordHash = passwordHash, Name = "", Surname = "" });
-            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
+            var added = AddUser(dbContext);
             dbContext.SaveChanges();
 
             var userService = new UserService(new UserRepository(dbContext));
 
             // Act
-            var user = await userService.Login(email, passwordHash);
+            var user = await userService.Login(added.Email, added.PasswordHash);
 
             // Assert
             user.Should().NotBeNull();
-            user.Email.Should().Be(email);
-            user.Id.Should().Be(userId);
+            user.Email.Should().Be(added.Email);
+            user.Id.Should().Be(added.Id);
         }
     }
 }

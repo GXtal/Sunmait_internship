@@ -20,14 +20,14 @@ public class OrderServiceUnitTest : BaseUnitTest
     {
         // Arrange
         int workingId = faker.Random.Int(1);
-        int statusId = faker.Random.Int(1);
+        int statusId = (int)OrderStatus.AwaitingConfirmation;
         int userId = faker.Random.Int(1);
         decimal cost = faker.Random.Decimal(1, 1000);
         var dbName = "OrderExists";
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new Order { Id = workingId, StatusId = statusId, UserId = userId, TotalCost = cost });
+            AddOrder(dbContext, workingId, statusId, userId, cost);
             dbContext.SaveChanges();
 
             var orderService = new OrderService(new UserRepository(dbContext),
@@ -51,21 +51,11 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void GetOrderById_OrderDoesNotExist()
     {
         // Arrange
-        int workingId = faker.Random.Int(1);
-        int wrongId = faker.Random.Int(1);
+
         var dbName = "OrderDoesNotExist";
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new Order
-            {
-                Id = workingId,
-                StatusId = faker.Random.Int(1),
-                UserId = faker.Random.Int(1),
-                TotalCost = faker.Random.Decimal(1, 1000)
-            });
-            dbContext.SaveChanges();
-
             var orderService = new OrderService(new UserRepository(dbContext),
                 new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
                 new ProductRepository(dbContext), new OrderProductRepository(dbContext),
@@ -73,6 +63,7 @@ public class OrderServiceUnitTest : BaseUnitTest
 
             // Act
             // Assert
+            var wrongId = faker.Random.Int(1);
             var ex = await Assert.ThrowsAsync<NotFoundException>(() => orderService.GetOrder(wrongId));
             ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderNotFound, wrongId));
         }
@@ -89,15 +80,8 @@ public class OrderServiceUnitTest : BaseUnitTest
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new Order
-            {
-                Id = orderId,
-                StatusId = oldStatusId,
-                UserId = faker.Random.Int(1),
-                TotalCost = faker.Random.Decimal(1, 1000)
-            });
-            dbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
-            dbContext.Add(new Status { Id = statusId, Name = "Completed" });
+            AddOrder(dbContext, orderId, oldStatusId, faker.Random.Int(1), faker.Random.Decimal(1, 1000));
+            AddStatuses(dbContext);
             dbContext.SaveChanges();
 
             var orderService = new OrderService(new UserRepository(dbContext),
@@ -123,15 +107,8 @@ public class OrderServiceUnitTest : BaseUnitTest
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new Order
-            {
-                Id = orderId,
-                StatusId = oldStatusId,
-                UserId = faker.Random.Int(1),
-                TotalCost = faker.Random.Decimal(1, 1000)
-            });
-            dbContext.Add(new Status { Id = oldStatusId, Name = "Awaiting confirmation" });
-            dbContext.Add(new Status { Id = statusId, Name = "Completed" });
+            AddOrder(dbContext, orderId, oldStatusId, faker.Random.Int(1), faker.Random.Decimal(1, 1000));
+            AddStatuses(dbContext);
             dbContext.SaveChanges();
 
             var orderService = new OrderService(new UserRepository(dbContext),
@@ -156,52 +133,25 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void AddNewOrder_PossibleProducts()
     {
         // Arrange
-        int userId = faker.Random.Int(1);
-        int roleId = faker.Random.Int(1);
         int count = faker.Random.Int(1, 10);
         int quantity = faker.Random.Int(count, 2 * count);
-        var dbName = "PossibleProducts";
-
-        int brandId = faker.Random.Int(1);
-        int categoryId = faker.Random.Int(1);
-
-        int allProductsCount = faker.Random.Int(1, 10);
-        int inputProductsCount = faker.Random.Int(1, allProductsCount);
-
         List<OrderProduct> inputProducts;
+        User user;
+
+        var dbName = "PossibleProducts";
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new User()
-            {
-                Id = userId,
-                Email = faker.Internet.Email(),
-                Name = faker.Name.FirstName(),
-                Surname = faker.Name.LastName(),
-                PasswordHash = faker.Internet.Password(),
-                RoleId = roleId
-            });
-            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
-            dbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
-
-            var productFaker = new Faker<Product>()
-            .RuleFor(p => p.Id, f => f.IndexFaker + 1)
-            .RuleFor(p => p.BrandId, brandId)
-            .RuleFor(p => p.CategoryId, categoryId)
-            .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-            .RuleFor(p => p.Quantity, quantity)
-            .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
-            .RuleFor(p => p.Description, f => f.Lorem.Sentence());
-            var products = productFaker.Generate(allProductsCount);
-            dbContext.AddRange(products);
-
-            dbContext.Add(new Category() { Id = categoryId, Name = faker.Commerce.Department() });
-            dbContext.Add(new Brand() { Id = brandId, Name = faker.Company.CompanyName() });
+            user = AddUser(dbContext);
+            AddStatuses(dbContext);
+            var ids = AddProducts(dbContext, quantity);
             dbContext.SaveChanges();
 
             var inputFaker = new Faker<OrderProduct>()
-                .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(products.ToArray()).Id)
+                .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(ids.ToArray()).Id)
                 .RuleFor(op => op.Count, count);
+
+            int inputProductsCount = faker.Random.Int(1, ids.Count());
 
             inputProducts = inputFaker.Generate(inputProductsCount);
 
@@ -211,7 +161,7 @@ public class OrderServiceUnitTest : BaseUnitTest
                     new StatusRepository(dbContext));
 
             // Act
-            await orderService.AddOrder(userId, inputProducts);
+            await orderService.AddOrder(user.Id, inputProducts);
         }
 
         // Assert
@@ -220,7 +170,7 @@ public class OrderServiceUnitTest : BaseUnitTest
             var result = dbContext.Orders.FirstOrDefault();
             result.Should().NotBeNull();
             result.StatusId.Should().Be((int)OrderStatus.AwaitingConfirmation);
-            result.UserId.Should().Be(userId);
+            result.UserId.Should().Be(user.Id);
 
             var usedProductsIds = inputProducts.Select(ip => ip.ProductId).ToList();
             var usedProducts = dbContext.Products.Where(p => usedProductsIds.Contains(p.Id));
@@ -241,52 +191,26 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void AddNewOrder_ImpossibleProductCount()
     {
         // Arrange
-        int userId = faker.Random.Int(1);
-        int roleId = faker.Random.Int(1);
         int quantity = faker.Random.Int(1, 10);
-        int count = faker.Random.Int(quantity, 2 * quantity);
-        var dbName = "ImpossibleProducts";
-
-        int brandId = faker.Random.Int(1);
-        int categoryId = faker.Random.Int(1);
-
-        int allProductsCount = faker.Random.Int(1, 10);
-        int inputProductsCount = faker.Random.Int(1, allProductsCount);
-
+        int count = faker.Random.Int(quantity + 1, 2 * quantity);
         List<OrderProduct> inputProducts;
+
+        var dbName = "ImpossibleProducts";
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.Add(new User()
-            {
-                Id = userId,
-                Email = faker.Internet.Email(),
-                Name = faker.Name.FirstName(),
-                Surname = faker.Name.LastName(),
-                PasswordHash = faker.Internet.Password(),
-                RoleId = roleId
-            });
-            dbContext.Add(new Role() { Id = roleId, Name = faker.Name.JobTitle() });
-            dbContext.Add(new Status() { Id = (int)OrderStatus.AwaitingConfirmation, Name = "Awaiting confirmation" });
+            var user = AddUser(dbContext);
+            AddStatuses(dbContext);
+            var ids = AddProducts(dbContext, quantity);
 
-            var productFaker = new Faker<Product>()
-            .RuleFor(p => p.Id, f => f.IndexFaker + 1)
-            .RuleFor(p => p.BrandId, brandId)
-            .RuleFor(p => p.CategoryId, categoryId)
-            .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-            .RuleFor(p => p.Quantity, quantity)
-            .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
-            .RuleFor(p => p.Description, f => f.Lorem.Sentence());
-            var products = productFaker.Generate(allProductsCount);
-            dbContext.AddRange(products);
-
-            dbContext.Add(new Category() { Id = categoryId, Name = faker.Commerce.Department() });
-            dbContext.Add(new Brand() { Id = brandId, Name = faker.Company.CompanyName() });
             dbContext.SaveChanges();
 
             var inputFaker = new Faker<OrderProduct>()
-                .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(products.ToArray()).Id)
-                .RuleFor(op => op.Count, count);
+               .RuleFor(op => op.ProductId, f => f.Random.ArrayElement(ids.ToArray()).Id)
+               .RuleFor(op => op.Count, count);
+
+            int inputProductsCount = faker.Random.Int(1, ids.Count());
+
             inputProducts = inputFaker.Generate(inputProductsCount);
 
             var orderService = new OrderService(new UserRepository(dbContext),
@@ -296,7 +220,7 @@ public class OrderServiceUnitTest : BaseUnitTest
 
             // Act
             // Assert
-            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrder(userId, inputProducts));
+            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrder(user.Id, inputProducts));
             ex.Message.Should().Match(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, inputProducts.First().ProductId));
         }
     }

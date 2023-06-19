@@ -10,38 +10,6 @@ using Moq;
 namespace TestProject;
 public class ProductServiceUnitTest : BaseUnitTest
 {
-    List<Product> products;
-    List<Brand> brands;
-    List<Category> categories;
-
-    public ProductServiceUnitTest()
-    {
-        brands = new List<Brand>()
-        {
-            new Brand() { Id = 1, Name = faker.Company.CompanyName() },
-            new Brand() { Id = 2, Name = faker.Company.CompanyName() },
-            new Brand() { Id = 3, Name = faker.Company.CompanyName() },
-        };
-
-        categories = new List<Category>()
-        {
-            new Category() { Id = 1, Name = faker.Commerce.Department() },
-            new Category() { Id = 2, Name = faker.Commerce.Department() },
-            new Category() { Id = 3, Name = faker.Commerce.Department() },
-        };
-
-        var productFaker = new Faker<Product>()
-            .RuleFor(p => p.Id, f => f.IndexFaker + 1)
-            .RuleFor(p => p.BrandId, f => f.Random.ArrayElement(brands.ToArray()).Id)
-            .RuleFor(p => p.CategoryId, f => f.Random.ArrayElement(categories.ToArray()).Id)
-            .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-            .RuleFor(p => p.Quantity, f => f.Random.Int(1, 10))
-            .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
-            .RuleFor(p => p.Description, f => f.Lorem.Sentence());
-
-        products = productFaker.Generate(6);
-    }
-
     [Fact]
     public async void GetProductsByBrand()
     {
@@ -49,9 +17,7 @@ public class ProductServiceUnitTest : BaseUnitTest
         var dbName = "GetProductsByBrand";
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.AddRange(products);
-            dbContext.AddRange(brands);
-            dbContext.AddRange(categories);
+            var products = AddProducts(dbContext, faker.Random.Int(1, 10));
             dbContext.SaveChanges();
 
             var productService = new ProductService(new BrandRepository(dbContext), new ProductRepository(dbContext),
@@ -75,9 +41,7 @@ public class ProductServiceUnitTest : BaseUnitTest
         var dbName = "GetProductsByCategory";
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            dbContext.AddRange(products);
-            dbContext.AddRange(categories);
-            dbContext.AddRange(brands);
+            var products = AddProducts(dbContext, faker.Random.Int(1, 10));
             dbContext.SaveChanges();
 
             var productService = new ProductService(new BrandRepository(dbContext), new ProductRepository(dbContext),

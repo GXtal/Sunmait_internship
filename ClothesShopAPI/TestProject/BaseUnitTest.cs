@@ -22,15 +22,17 @@ public class BaseUnitTest
         return shopDbContext;
     }
 
-    public void AddOrder(ShopDbContext dbContext, int id, int statusId, int userId, decimal cost)
+    public Order AddOrder(ShopDbContext dbContext, int statusId)
     {
-        dbContext.Add(new Order
+        var order = new Order
         {
-            Id = id,
+            Id = faker.Random.Int(1),
             StatusId = statusId,
-            UserId = userId,
-            TotalCost = cost
-        });
+            UserId = faker.Random.Int(1),
+            TotalCost = faker.Random.Decimal(1, 1000)
+        };
+        dbContext.Add(order);
+        return order;
     }
 
     public void AddStatuses(ShopDbContext dbContext)

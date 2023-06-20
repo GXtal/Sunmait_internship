@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using FluentAssertions;
+using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -15,35 +16,39 @@ namespace TestProject;
 
 public class OrderServiceUnitTest : BaseUnitTest
 {
+    public OrderService GetOrderService(ShopDbContext dbContext)
+    {
+        return new OrderService(new UserRepository(dbContext),
+                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
+                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
+                new StatusRepository(dbContext));
+    }
+
+
     [Fact]
     public async void GetOrderById_OrderExists()
     {
         // Arrange
-        int workingId = faker.Random.Int(1);
         int statusId = (int)OrderStatus.AwaitingConfirmation;
-        int userId = faker.Random.Int(1);
-        decimal cost = faker.Random.Decimal(1, 1000);
-        var dbName = "OrderExists";
+
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            AddOrder(dbContext, workingId, statusId, userId, cost);
+            var added = AddOrder(dbContext, statusId);
             dbContext.SaveChanges();
 
-            var orderService = new OrderService(new UserRepository(dbContext),
-                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
-            var order = await orderService.GetOrder(workingId);
+            var order = await orderService.GetOrder(added.Id);
 
             // Assert
             order.Should().NotBeNull();
-            order.Id.Should().Be(workingId);
-            order.StatusId.Should().Be(statusId);
-            order.UserId.Should().Be(userId);
-            order.TotalCost.Should().Be(cost);
+            order.Id.Should().Be(added.Id);
+            order.StatusId.Should().Be(added.StatusId);
+            order.UserId.Should().Be(added.UserId);
+            order.TotalCost.Should().Be(added.TotalCost);
         }
     }
 
@@ -51,15 +56,11 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void GetOrderById_OrderDoesNotExist()
     {
         // Arrange
-
-        var dbName = "OrderDoesNotExist";
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            var orderService = new OrderService(new UserRepository(dbContext),
-                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
             // Assert
@@ -73,26 +74,23 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void ChangeOrderStatus_UnchangeableFromAwaitingConfirmationToCompleted()
     {
         // Arrange
-        int orderId = faker.Random.Int(1);
         int oldStatusId = (int)OrderStatus.AwaitingConfirmation;
         int statusId = (int)OrderStatus.Completed;
-        var dbName = "Unchangeable";
+
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            AddOrder(dbContext, orderId, oldStatusId, faker.Random.Int(1), faker.Random.Decimal(1, 1000));
+            var added = AddOrder(dbContext, oldStatusId);
             AddStatuses(dbContext);
             dbContext.SaveChanges();
 
-            var orderService = new OrderService(new UserRepository(dbContext),
-                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
             // Assert
-            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrderStatus(orderId, statusId));
-            ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderUnchangeable, orderId, statusId));
+            var ex = await Assert.ThrowsAsync<BadRequestException>(async () => await orderService.AddOrderStatus(added.Id, statusId));
+            ex.Message.Should().Match(String.Format(OrderExceptionsMessages.OrderUnchangeable, added.Id, statusId));
         }
     }
 
@@ -100,30 +98,28 @@ public class OrderServiceUnitTest : BaseUnitTest
     public async void ChangeOrderStatus_ChangeableFromAwaitingConfirmationToDelivering()
     {
         // Arrange
-        int orderId = faker.Random.Int(1);
         int oldStatusId = (int)OrderStatus.AwaitingConfirmation;
         int statusId = (int)OrderStatus.Delivering;
-        var dbName = "Changeable";
+        Order added;
+
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            AddOrder(dbContext, orderId, oldStatusId, faker.Random.Int(1), faker.Random.Decimal(1, 1000));
+            added = AddOrder(dbContext, oldStatusId);
             AddStatuses(dbContext);
             dbContext.SaveChanges();
 
-            var orderService = new OrderService(new UserRepository(dbContext),
-                new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
-            await orderService.AddOrderStatus(orderId, statusId);
+            await orderService.AddOrderStatus(added.Id, statusId);
         }
 
         // Assert
         using (var dbContext = GetInMemoryContext(dbName))
         {
-            var result = dbContext.OrderHistories.FirstOrDefault(oh => oh.StatusId == statusId && oh.OrderId == orderId);
+            var result = dbContext.OrderHistories.FirstOrDefault(oh => oh.StatusId == statusId && oh.OrderId == added.Id);
             result.Should().NotBeNull();
             result.StatusId.Should().Be(statusId);
         }
@@ -138,7 +134,7 @@ public class OrderServiceUnitTest : BaseUnitTest
         List<OrderProduct> inputProducts;
         User user;
 
-        var dbName = "PossibleProducts";
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
@@ -155,10 +151,7 @@ public class OrderServiceUnitTest : BaseUnitTest
 
             inputProducts = inputFaker.Generate(inputProductsCount);
 
-            var orderService = new OrderService(new UserRepository(dbContext),
-                    new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                    new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                    new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
             await orderService.AddOrder(user.Id, inputProducts);
@@ -195,7 +188,7 @@ public class OrderServiceUnitTest : BaseUnitTest
         int count = faker.Random.Int(quantity + 1, 2 * quantity);
         List<OrderProduct> inputProducts;
 
-        var dbName = "ImpossibleProducts";
+        var dbName = Guid.NewGuid().ToString();
 
         using (var dbContext = GetInMemoryContext(dbName))
         {
@@ -213,10 +206,7 @@ public class OrderServiceUnitTest : BaseUnitTest
 
             inputProducts = inputFaker.Generate(inputProductsCount);
 
-            var orderService = new OrderService(new UserRepository(dbContext),
-                    new OrderRepository(dbContext), new OrderHistoryRepository(dbContext),
-                    new ProductRepository(dbContext), new OrderProductRepository(dbContext),
-                    new StatusRepository(dbContext));
+            var orderService = GetOrderService(dbContext);
 
             // Act
             // Assert

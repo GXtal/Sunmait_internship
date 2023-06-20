@@ -3,6 +3,7 @@ using Bogus;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using FluentAssertions;
+using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -10,18 +11,24 @@ using Moq;
 namespace TestProject;
 public class ProductServiceUnitTest : BaseUnitTest
 {
+    public ProductService GetProductService(ShopDbContext dbContext)
+    {
+        return new ProductService(new BrandRepository(dbContext), new ProductRepository(dbContext),
+            new CategoryRepository(dbContext), new OrderRepository(dbContext), new OrderProductRepository(dbContext));
+    }
+
     [Fact]
     public async void GetProductsByBrand()
     {
         // Arrange
-        var dbName = "GetProductsByBrand";
+        var dbName = Guid.NewGuid().ToString();
+
         using (var dbContext = GetInMemoryContext(dbName))
         {
             var products = AddProducts(dbContext, faker.Random.Int(1, 10));
             dbContext.SaveChanges();
 
-            var productService = new ProductService(new BrandRepository(dbContext), new ProductRepository(dbContext),
-            new CategoryRepository(dbContext), new OrderRepository(dbContext), new OrderProductRepository(dbContext));
+            var productService = GetProductService(dbContext);
 
             int brandId = 1;
 
@@ -38,14 +45,14 @@ public class ProductServiceUnitTest : BaseUnitTest
     public async void GetProductsByCategory()
     {
         // Arrange
-        var dbName = "GetProductsByCategory";
+        var dbName = Guid.NewGuid().ToString();
+
         using (var dbContext = GetInMemoryContext(dbName))
         {
             var products = AddProducts(dbContext, faker.Random.Int(1, 10));
             dbContext.SaveChanges();
 
-            var productService = new ProductService(new BrandRepository(dbContext), new ProductRepository(dbContext),
-            new CategoryRepository(dbContext), new OrderRepository(dbContext), new OrderProductRepository(dbContext));
+            var productService = GetProductService(dbContext);
 
             int categoryId = 1;
 

@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using FluentAssertions;
+using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Moq;
 
@@ -12,17 +13,23 @@ namespace TestProject;
 
 public class UserServiceUnitTest : BaseUnitTest
 {
+    public UserService GetUserService(ShopDbContext dbContext)
+    {
+        return new UserService(new UserRepository(dbContext));
+    }
+
     [Fact]
     public async void Login_WrongPassword()
     {
         // Arrange
-        var dbName = "WrongPassword";
+        var dbName = Guid.NewGuid().ToString();
+
         using (var dbContext = GetInMemoryContext(dbName))
         {
             var user = AddUser(dbContext);
             dbContext.SaveChanges();
 
-            var userService = new UserService(new UserRepository(dbContext));
+            var userService = GetUserService(dbContext);
 
             // Act
             // Assert
@@ -35,14 +42,14 @@ public class UserServiceUnitTest : BaseUnitTest
     public async void Login_CorrectPassword()
     {
         // Arrange
+        var dbName = Guid.NewGuid().ToString();
 
-        var dbName = "CorrectPassword";
         using (var dbContext = GetInMemoryContext(dbName))
         {
             var added = AddUser(dbContext);
             dbContext.SaveChanges();
 
-            var userService = new UserService(new UserRepository(dbContext));
+            var userService = GetUserService(dbContext);
 
             // Act
             var user = await userService.Login(added.Email, added.PasswordHash);

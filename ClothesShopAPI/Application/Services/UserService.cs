@@ -54,7 +54,6 @@ public class UserService : IUserService
         var user = new User() { Email = email, PasswordHash = passwordHash, Name = name, Surname = surname, RoleId = UserRole };
         user = await _userRepository.AddUser(user);
         return user;
-
     }
 
     public async Task SetUserInfo(int id, string name, string surname)

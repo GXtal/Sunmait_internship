@@ -106,13 +106,23 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<Order> GetOrder(int id)
+    public async Task<Order> GetOrder(int id, int userId)
     {
         var order = await _orderRepository.GetOrderById(id);
         if (order == null)
         {
             throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
         }
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+        if (!(user.RoleId == (int)UserRole.Admin || order.UserId == userId))
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenRead);
+        }
+
         return order;
     }
 
@@ -128,12 +138,21 @@ public class OrderService : IOrderService
         return orders;
     }
 
-    public async Task<IEnumerable<OrderHistory>> GetOrderHistory(int id)
+    public async Task<IEnumerable<OrderHistory>> GetOrderHistory(int id, int userId)
     {
         var order = await _orderRepository.GetOrderById(id);
         if (order == null)
         {
             throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
+        }
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+        if (!(user.RoleId == (int)UserRole.Admin || order.UserId == userId))
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenRead);
         }
 
         var history = await _orderHistoryRepository.GetHistoryByOrder(order);

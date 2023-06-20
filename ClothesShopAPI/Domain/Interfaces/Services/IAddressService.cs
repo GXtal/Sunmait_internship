@@ -8,5 +8,5 @@ public interface IAddressService
 
     public Task AddAddress(int userId, string fullAddress);
 
-    public Task RemoveAddress(int id);
+    public Task RemoveAddress(int id, int userId);
 }

@@ -27,9 +27,11 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
-        var order = await _orderService.GetOrder(id);
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var order = await _orderService.GetOrder(id, userId);
         var result = new OrderViewModel()
         {
             Id = order.Id,
@@ -46,9 +48,11 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderHistoryViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderHistory([FromRoute] int id)
     {
-        var history = await _orderService.GetOrderHistory(id);
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var history = await _orderService.GetOrderHistory(id, userId);
         var result = new List<OrderHistoryViewModel>();
         foreach (var item in history)
         {
@@ -84,8 +88,15 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderViewModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
+        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString()) ||
+            User.HasClaim(CustomClaimNames.RoleId, ((int)UserRole.Admin).ToString())))
+        {
+            return new ForbidResult();
+        }
+
         var allOrders = await _orderService.GetOrders(userId);
 
         var result = new List<OrderViewModel>();
@@ -103,15 +114,16 @@ public class OrderController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // POST api/Orders/User/5
+    // POST api/Orders/User
     [Authorize]
-    [HttpPost("Users/{userId}")]
+    [HttpPost("Users")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> AddOrder([FromRoute] int userId, [FromBody] IEnumerable<OrderProductInputModel> orderProducts)
+    public async Task<IActionResult> AddOrder([FromBody] IEnumerable<OrderProductInputModel> orderProducts)
     {
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
         var productsToAdd = new List<OrderProduct>();
         foreach (var orderProduct in orderProducts)
         {

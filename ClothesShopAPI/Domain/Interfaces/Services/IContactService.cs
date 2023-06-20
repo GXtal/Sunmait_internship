@@ -8,5 +8,5 @@ public interface IContactService
 
     public Task AddContact(int userId, string phoneNumber);
 
-    public Task RemoveContact(int id);
+    public Task RemoveContact(int id, int userId);
 }

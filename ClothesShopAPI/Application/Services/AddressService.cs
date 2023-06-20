@@ -41,13 +41,18 @@ public class AddressService : IAddressService
         return addresses;
     }
 
-    public async Task RemoveAddress(int id)
+    public async Task RemoveAddress(int id, int userId)
     {
         var address = await _addressRepository.GetAddressById(id);
         if (address == null)
         {
             throw new NotFoundException(String.Format(AddressExceptionsMessages.AddressNotFound, id));
         }
+        if (address.UserId != userId)
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenModify);
+        }
+
         await _addressRepository.RemoveAddress(address);
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Web.AuthorizationData;
+using Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,7 @@ builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(config.GetConnecti
 // Add injections
 
 builder.Services.AddSingleton(builder);
+builder.Services.AddTransient<TokenManager>();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
 builder.Services.AddTransient<ISectionRepository, SectionRepository>();

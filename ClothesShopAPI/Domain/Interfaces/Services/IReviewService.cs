@@ -8,5 +8,5 @@ public interface IReviewService
 
     public Task AddReview(string newReviewComment, int rating, int productId, int userId);
 
-    public Task RemoveReview(int id);
+    public Task RemoveReview(int id, int userId);
 }

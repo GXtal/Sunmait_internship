@@ -41,13 +41,18 @@ public class ContactService : IContactService
         return contacts;
     }
 
-    public async Task RemoveContact(int id)
+    public async Task RemoveContact(int id, int userId)
     {
         var contact = await _contactRepository.GetContactById(id);
         if (contact == null)
         {
             throw new NotFoundException(String.Format(ContactExceptionsMessages.ContactNotFound, id));
         }
+        if (contact.UserId != userId)
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenModify);
+        }
+
         await _contactRepository.RemoveContact(contact);
     }
 }

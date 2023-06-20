@@ -49,12 +49,16 @@ public class ReviewService : IReviewService
         return reviews;
     }
 
-    public async Task RemoveReview(int id)
+    public async Task RemoveReview(int id, int userId)
     {
         var review = await _reviewRepository.GetReviewById(id);
         if (review == null)
         {
             throw new NotFoundException(String.Format(ReviewExceptionsMessages.ReviewNotFound, id));
+        }
+        if (review.UserId != userId)
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenModify);
         }
 
         await _reviewRepository.RemoveReview(review);

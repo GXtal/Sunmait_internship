@@ -1,10 +1,8 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Enums;
+using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Web.Authorization;
 using Web.AuthorizationData;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
@@ -18,16 +16,15 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly IContactService _contactService;
     private readonly IAddressService _addressService;
+    private readonly TokenManager _tokenManager;
 
-    private static readonly TimeSpan tokenLifeTime = TimeSpan.FromMinutes(20);
-    private readonly WebApplicationBuilder _applicationBuilder;
-
-    public UserController(IUserService userService, IContactService contactService, IAddressService addressService, WebApplicationBuilder applicationBuilder)
+    public UserController(IUserService userService, IContactService contactService,
+        IAddressService addressService, TokenManager tokenManager)
     {
         _userService = userService;
         _contactService = contactService;
         _addressService = addressService;
-        _applicationBuilder = applicationBuilder;
+        _tokenManager = tokenManager;
     }
 
     // GET api/Users/5
@@ -58,31 +55,9 @@ public class UserController : ControllerBase
     {
         var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
 
-        var config = _applicationBuilder.Configuration;
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(config[ConfigurationPaths.Key]!);
-
-        var claims = new List<Claim>()
-        {
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Sub, credentials.Email),
-            new Claim(JwtRegisteredClaimNames.Email, credentials.Email),
-            new Claim(CustomClaimNames.UserId, user.Id.ToString()),
-            new Claim(CustomClaimNames.RoleId, user.RoleId.ToString())
-        };
-
-        var tokenDescriptor = new SecurityTokenDescriptor()
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.Add(tokenLifeTime),
-            Issuer = config[ConfigurationPaths.Issuer],
-            Audience = config[ConfigurationPaths.Audience],
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        var result = new TokenViewModel() { Token = tokenHandler.WriteToken(token) };
+        var token = _tokenManager.GenerateToken(user);
+        
+        var result = new TokenViewModel() { Token = token };
 
         return new OkObjectResult(result);
     }
@@ -106,48 +81,58 @@ public class UserController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // PUT api/Users/5
+    // PUT api/Users
     [Authorize]
-    [HttpPut("{id}")]
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserInfoInput credentials)
+    public async Task<IActionResult> UpdateUser([FromBody] UserInfoInput credentials)
     {
-        await _userService.SetUserInfo(id, credentials.Name, credentials.Surname);
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        await _userService.SetUserInfo(userId, credentials.Name, credentials.Surname);
         return new OkResult();
     }
 
-    // POST api/Users/5/Contacts
+    // POST api/Users/Contacts
     [Authorize]
-    [HttpPost("{userId}/Contacts")]
+    [HttpPost("Contacts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> AddContact([FromRoute] int userId, [FromBody] ContactInputModel newContact)
+    public async Task<IActionResult> AddContact([FromBody] ContactInputModel newContact)
     {
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
         await _contactService.AddContact(userId, newContact.PhoneNumber);
         return new OkResult();
     }
 
-    // DELETE api/Users/5/Contacts/3
+    // DELETE api/Users/Contacts/3
     [Authorize]
-    [HttpDelete("{userId}/Contacts/{contactId}")]
+    [HttpDelete("Contacts/{contactId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveContact([FromRoute] int contactId)
     {
-        await _contactService.RemoveContact(contactId);
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        await _contactService.RemoveContact(contactId, userId);
         return new OkResult();
     }
 
     // GET: api/Users/5/Contacts
+    [Authorize]
     [HttpGet("{userId}/Contacts")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ContactViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetContacts([FromRoute] int userId)
     {
+        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString())||
+            User.HasClaim(CustomClaimNames.RoleId,((int)UserRole.Admin).ToString())))
+        {
+            return new ForbidResult();
+        }
+
         var allContacts = await _contactService.GetContacts(userId);
 
         var result = new List<ContactViewModel>();
@@ -159,27 +144,29 @@ public class UserController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // POST api/Users/5/Addresses
+    // POST api/Users/Addresses
     [Authorize]
-    [HttpPost("{userId}/Addresses")]
+    [HttpPost("Addresses")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> AddAddress([FromRoute] int userId, [FromBody] AddressInputModel newAddress)
+    public async Task<IActionResult> AddAddress([FromBody] AddressInputModel newAddress)
     {
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
         await _addressService.AddAddress(userId, newAddress.FullAddress);
         return new OkResult();
     }
 
-    // DELETE api/Users/5/Addresses/3
+    // DELETE api/Users/Addresses/3
     [Authorize]
-    [HttpDelete("{userId}/Addresses/{addressId}")]
+    [HttpDelete("Addresses/{addressId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveAddress([FromRoute] int addressId)
     {
-        await _addressService.RemoveAddress(addressId);
+        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        await _addressService.RemoveAddress(addressId, userId);
         return new OkResult();
     }
 
@@ -189,6 +176,12 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAddresses([FromRoute] int userId)
     {
+        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString()) ||
+            User.HasClaim(CustomClaimNames.RoleId, ((int)UserRole.Admin).ToString())))
+        {
+            return new ForbidResult();
+        }
+
         var allAddresses = await _addressService.GetAddresses(userId);
 
         var result = new List<AddressViewModel>();

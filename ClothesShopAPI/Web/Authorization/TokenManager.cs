@@ -1,14 +1,14 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Domain.Entities;
+using Domain.Interfaces.Managers;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Web.AuthorizationData;
 
 namespace Web.Authorization;
 
-public class TokenManager
+public class TokenManager : ITokenManager
 {
     private readonly WebApplicationBuilder _applicationBuilder;
     private static readonly TimeSpan tokenLifeTime = TimeSpan.FromMinutes(20);
@@ -17,6 +17,7 @@ public class TokenManager
     {
         _applicationBuilder = applicationBuilder;
     }
+
     public string GenerateToken(User user)
     {
         var config = _applicationBuilder.Configuration;

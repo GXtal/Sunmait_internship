@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Authorization;
 using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -30,7 +31,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         var order = await _orderService.GetOrder(id, userId);
         var result = new OrderViewModel()
         {
@@ -51,7 +52,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderHistory([FromRoute] int id)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         var history = await _orderService.GetOrderHistory(id, userId);
         var result = new List<OrderHistoryViewModel>();
         foreach (var item in history)
@@ -91,11 +92,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
-        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString()) ||
-            User.HasClaim(CustomClaimNames.RoleId, ((int)UserRole.Admin).ToString())))
-        {
-            return new ForbidResult();
-        }
+        User.CheckAccessClaim(userId);
 
         var allOrders = await _orderService.GetOrders(userId);
 
@@ -123,7 +120,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddOrder([FromBody] IEnumerable<OrderProductInputModel> orderProducts)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         var productsToAdd = new List<OrderProduct>();
         foreach (var orderProduct in orderProducts)
         {

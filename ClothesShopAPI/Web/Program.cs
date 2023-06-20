@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Web.AuthorizationData;
 using Web.Authorization;
+using Domain.Interfaces.Managers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +42,7 @@ builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(config.GetConnecti
 // Add injections
 
 builder.Services.AddSingleton(builder);
-builder.Services.AddTransient<TokenManager>();
+builder.Services.AddTransient<ITokenManager, TokenManager>();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
 builder.Services.AddTransient<ISectionRepository, SectionRepository>();

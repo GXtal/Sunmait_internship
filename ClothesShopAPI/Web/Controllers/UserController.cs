@@ -1,9 +1,8 @@
-﻿using Domain.Enums;
-using Domain.Interfaces.Services;
+﻿using Domain.Interfaces.Services;
+using Domain.Interfaces.Managers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Authorization;
-using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -16,10 +15,10 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly IContactService _contactService;
     private readonly IAddressService _addressService;
-    private readonly TokenManager _tokenManager;
+    private readonly ITokenManager _tokenManager;
 
     public UserController(IUserService userService, IContactService contactService,
-        IAddressService addressService, TokenManager tokenManager)
+        IAddressService addressService, ITokenManager tokenManager)
     {
         _userService = userService;
         _contactService = contactService;
@@ -56,7 +55,7 @@ public class UserController : ControllerBase
         var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
 
         var token = _tokenManager.GenerateToken(user);
-        
+
         var result = new TokenViewModel() { Token = token };
 
         return new OkObjectResult(result);
@@ -89,7 +88,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateUser([FromBody] UserInfoInput credentials)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _userService.SetUserInfo(userId, credentials.Name, credentials.Surname);
         return new OkResult();
     }
@@ -102,7 +101,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddContact([FromBody] ContactInputModel newContact)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _contactService.AddContact(userId, newContact.PhoneNumber);
         return new OkResult();
     }
@@ -115,7 +114,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveContact([FromRoute] int contactId)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _contactService.RemoveContact(contactId, userId);
         return new OkResult();
     }
@@ -127,11 +126,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetContacts([FromRoute] int userId)
     {
-        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString())||
-            User.HasClaim(CustomClaimNames.RoleId,((int)UserRole.Admin).ToString())))
-        {
-            return new ForbidResult();
-        }
+        User.CheckAccessClaim(userId);
 
         var allContacts = await _contactService.GetContacts(userId);
 
@@ -152,7 +147,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddAddress([FromBody] AddressInputModel newAddress)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _addressService.AddAddress(userId, newAddress.FullAddress);
         return new OkResult();
     }
@@ -165,7 +160,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveAddress([FromRoute] int addressId)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _addressService.RemoveAddress(addressId, userId);
         return new OkResult();
     }
@@ -176,11 +171,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAddresses([FromRoute] int userId)
     {
-        if (!(User.HasClaim(CustomClaimNames.UserId, userId.ToString()) ||
-            User.HasClaim(CustomClaimNames.RoleId, ((int)UserRole.Admin).ToString())))
-        {
-            return new ForbidResult();
-        }
+        User.CheckAccessClaim(userId);
 
         var allAddresses = await _addressService.GetAddresses(userId);
 

@@ -1,7 +1,7 @@
 ﻿using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -26,7 +26,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddReview([FromBody] ReviewInputModel newReview)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _reviewService.AddReview(newReview.Comment, newReview.Rating, newReview.ProductId, userId);
         return new OkResult();
     }
@@ -39,7 +39,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveReview([FromRoute] int id)
     {
-        var userId = Int32.Parse(User.FindFirst(CustomClaimNames.UserId)!.Value);
+        var userId = User.GetUserId();
         await _reviewService.RemoveReview(id, userId);
         return new OkResult();
     }

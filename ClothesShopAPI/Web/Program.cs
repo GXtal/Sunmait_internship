@@ -16,6 +16,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "a", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod(); ;
+    });
+
+});
+
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -91,6 +102,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ErrorMiddleware>();
+
+app.UseCors("a");
 
 app.UseAuthentication();
 app.UseAuthorization();

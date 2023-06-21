@@ -1,5 +1,5 @@
 ﻿using Domain.Interfaces.Services;
-using Domain.Interfaces.Managers;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Extension;
@@ -126,7 +126,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetContacts([FromRoute] int userId)
     {
-        User.CheckAccessClaim(userId);
+        User.CheckIsOwnerOrAdmin(userId);
 
         var allContacts = await _contactService.GetContacts(userId);
 
@@ -171,7 +171,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAddresses([FromRoute] int userId)
     {
-        User.CheckAccessClaim(userId);
+        User.CheckIsOwnerOrAdmin(userId);
 
         var allAddresses = await _addressService.GetAddresses(userId);
 

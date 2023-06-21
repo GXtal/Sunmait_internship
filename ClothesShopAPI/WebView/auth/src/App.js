@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios'
-import { createHash } from 'crypto';
+import sha256  from 'crypto-js/sha256';
 
 function App() {
 
@@ -17,11 +17,13 @@ function App() {
 
   const handleLoginClick = async (e) => {
     e.preventDefault()    
+    
     var req =
     {
       Email: credentials.email,
-      PasswordHash: createHash('sha256').update(credentials.password).digest('hex')
+      PasswordHash: sha256(credentials.password).toString()
     }
+    console.log(req);
     axios.post("http://localhost:5233/api/Users/login", req).then(r => console.log(r.data));
   }
 
@@ -30,7 +32,7 @@ function App() {
     var req =
     {
       Email: credentials.email,
-      PasswordHash: createHash('sha256').update(credentials.password).digest('hex'),
+      PasswordHash: sha256(credentials.password).toString(),
       Name: credentials.name,
       Surname: credentials.surname
     }
@@ -55,8 +57,8 @@ function App() {
         <span className="input-group-text">Surname</span>
         <input type="text" id="surname" onChange={handleChange} />
       </div>
-      <button onClick={handleLoginClick}></button>
-      <button onClick={handleSignupClick}></button>
+      <button onClick={handleLoginClick}>Login</button>
+      <button onClick={handleSignupClick}>Register</button>
     </div>
   );
 }

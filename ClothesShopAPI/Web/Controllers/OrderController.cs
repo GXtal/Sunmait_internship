@@ -92,7 +92,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
-        User.CheckAccessClaim(userId);
+        User.CheckIsOwnerOrAdmin(userId);
 
         var allOrders = await _orderService.GetOrders(userId);
 

@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Web.AuthorizationData;
 using Web.Authorization;
-using Domain.Interfaces.Managers;
+using Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

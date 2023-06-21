@@ -13,7 +13,7 @@ public static class ClaimsPrincipalExtensions
         return Int32.Parse(cp.FindFirst(CustomClaimNames.UserId)!.Value);
     }
 
-    public static void CheckAccessClaim(this ClaimsPrincipal cp, int userId)
+    public static void CheckIsOwnerOrAdmin(this ClaimsPrincipal cp, int userId)
     {
         if (!(cp.HasClaim(CustomClaimNames.UserId, userId.ToString()) ||
             cp.HasClaim(CustomClaimNames.RoleId, ((int)UserRole.Admin).ToString())))

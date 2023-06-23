@@ -134,7 +134,7 @@ public class OrderService : IOrderService
             throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
         }
 
-        var orders = await _orderRepository.GetOrdersByUser(user);
+        var orders = await _orderRepository.GetOrdersByUser(user.Id);
         return orders;
     }
 

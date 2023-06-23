@@ -27,7 +27,7 @@ public class OrderRepository : IOrderRepository
         return order;
     }
 
-    public async Task<IEnumerable<Order>> GetOrderByUserAndProduct(int userId, int productId)
+    public async Task<IEnumerable<Order>> GetOrdersByUserAndProduct(int userId, int productId)
     {
         var orders = await _dbContext.OrdersProducts.
             Where(op => op.ProductId == productId).

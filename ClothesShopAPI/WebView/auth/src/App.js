@@ -23,7 +23,16 @@ function App() {
       Password: credentials.password
     }
     console.log(req);
-    axios.post("http://localhost:5233/api/Users/login", req).then(r => console.log(r.data));
+    try
+    {
+      const res = axios.post("http://localhost:5233/api/Users/login", req);
+      console.log(res.data);
+    }
+    catch (e)
+    {
+      console.log(e.message);
+    }
+    
   }
 
   const handleSignupClick = async (e) => {
@@ -35,7 +44,16 @@ function App() {
       Name: credentials.name,
       Surname: credentials.surname
     }
-    axios.post("http://localhost:5233/api/Users/register", req).then(r => console.log(r.data));
+    try
+    {
+      const res = axios.post("http://localhost:5233/api/Users/register", req);
+      console.log(res.data);
+    }
+    catch (e)
+    {
+      console.log(e);
+    }
+    
   }
 
   return (

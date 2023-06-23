@@ -111,9 +111,9 @@ public class OrderController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // POST api/Orders/User
+    // POST api/Orders
     [Authorize]
-    [HttpPost("Users")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

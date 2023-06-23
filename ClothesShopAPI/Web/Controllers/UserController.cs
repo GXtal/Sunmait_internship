@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
+using Domain.Enums;
+using Web.Authorization;
+using Web.AuthorizationData;
 
 namespace Web.Controllers;
 
@@ -27,9 +30,13 @@ public class UserController : ControllerBase
     }
 
     // GET api/Users/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetUserById([FromRoute] int id)
     {
         var user = await _userService.GetUserInfo(id);
@@ -52,7 +59,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] LoginInputModel credentials)
     {
-        var user = await _userService.Login(credentials.Email, credentials.PasswordHash);
+        var user = await _userService.Login(credentials.Email, credentials.Password);
 
         var token = _tokenManager.GenerateToken(user);
 
@@ -67,7 +74,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterInputModel credentials)
     {
-        var user = await _userService.Register(credentials.Email, credentials.PasswordHash, credentials.Name, credentials.Surname);
+        var user = await _userService.Register(credentials.Email, credentials.Password, credentials.Name, credentials.Surname);
         var result = new UserViewModel()
         {
             Id = user.Id,
@@ -124,6 +131,7 @@ public class UserController : ControllerBase
     [HttpGet("{userId}/Contacts")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ContactViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetContacts([FromRoute] int userId)
     {
         User.CheckIsOwnerOrAdmin(userId);
@@ -166,9 +174,12 @@ public class UserController : ControllerBase
     }
 
     // GET: api/Users/5/Addresses
+    [Authorize]
     [HttpGet("{userId}/Addresses")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AddressViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAddresses([FromRoute] int userId)
     {
         User.CheckIsOwnerOrAdmin(userId);

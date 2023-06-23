@@ -3,6 +3,7 @@ using Application.Exceptions;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
+using Domain.Enums;
 
 namespace Application.Services;
 
@@ -11,12 +12,15 @@ public class ReviewService : IReviewService
     private readonly IProductRepository _productRepository;
     private readonly IUserRepository _userRepository;
     private readonly IReviewRepository _reviewRepository;
+    private readonly IOrderRepository _orderRepository;
 
-    public ReviewService(IProductRepository productRepository, IUserRepository userRepository, IReviewRepository reviewRepository)
+    public ReviewService(IProductRepository productRepository, IUserRepository userRepository,
+        IReviewRepository reviewRepository, IOrderRepository orderRepository)
     {
         _productRepository = productRepository;
         _userRepository = userRepository;
         _reviewRepository = reviewRepository;
+        _orderRepository = orderRepository;
     }
 
     public async Task AddReview(string newReviewComment, int rating, int productId, int userId)
@@ -33,6 +37,12 @@ public class ReviewService : IReviewService
             throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
         }
 
+        var orders = await _orderRepository.GetOrdersByUserAndProduct(userId, productId);
+        if (!orders.Any(o => o.StatusId == (int)OrderStatus.Completed))
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenModify);
+        }
+        
         var review = new Review() { Comment = newReviewComment, ProductId = productId, UserId = userId, Rating = rating };
         await _reviewRepository.AddReview(review);
     }

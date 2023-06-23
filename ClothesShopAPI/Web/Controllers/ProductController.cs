@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Authorization;
 using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -164,9 +165,11 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderProductViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderProducts([FromRoute] int orderId)
     {
-        var orderProducts = await _productService.GetOrderProducts(orderId);
+        var userId = User.GetUserId();
+        var orderProducts = await _productService.GetOrderProducts(orderId, userId);
         var result = new List<OrderProductViewModel>();
         foreach (var orderProduct in orderProducts)
         {

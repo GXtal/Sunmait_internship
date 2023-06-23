@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios'
-import sha256  from 'crypto-js/sha256';
 
 function App() {
 
@@ -21,7 +20,7 @@ function App() {
     var req =
     {
       Email: credentials.email,
-      PasswordHash: sha256(credentials.password).toString()
+      Password: credentials.password
     }
     console.log(req);
     axios.post("http://localhost:5233/api/Users/login", req).then(r => console.log(r.data));
@@ -32,7 +31,7 @@ function App() {
     var req =
     {
       Email: credentials.email,
-      PasswordHash: sha256(credentials.password).toString(),
+      Password: credentials.password,
       Name: credentials.name,
       Surname: credentials.surname
     }

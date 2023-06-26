@@ -12,9 +12,6 @@ public class ReviewInputModel
     [StringLength(200, ErrorMessage = "The Comment field must not exceed 200 characters.")]
     public string Comment { get; set; }
 
-    [Required(ErrorMessage = "The UserId field is required.")]
-    public int UserId { get; set; }
-
     [Required(ErrorMessage = "The ProductId field is required.")]
     public int ProductId { get; set; }
 }

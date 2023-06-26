@@ -38,6 +38,32 @@ public class ErrorMiddleware : IMiddleware
 
             await context.Response.WriteAsJsonAsync(details);
         }
+        catch (NotAuthorizedException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+
+            ProblemDetails details = new ProblemDetails()
+            {
+                Status = (int)HttpStatusCode.Unauthorized,
+                Title = "Unauthorized",
+                Detail = ex.Message,
+            };
+
+            await context.Response.WriteAsJsonAsync(details);
+        }
+        catch (ForbiddenException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+
+            ProblemDetails details = new ProblemDetails()
+            {
+                Status = (int)HttpStatusCode.Forbidden,
+                Title = "Forbidden",
+                Detail = ex.Message,
+            };
+
+            await context.Response.WriteAsJsonAsync(details);
+        }
         catch (Exception ex)
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

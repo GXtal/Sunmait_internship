@@ -1,6 +1,10 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Authorization;
+using Web.AuthorizationData;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -78,9 +82,13 @@ public class CategoryController : ControllerBase
     }
 
     // POST api/Categories
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddCategory([FromBody] CategoryInputModel newCategory)
     {
         await _categoryService.AddCategory(newCategory.Name, newCategory.ParentId, newCategory.SectionId);
@@ -88,10 +96,14 @@ public class CategoryController : ControllerBase
     }
 
     // PUT api/Categories/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] CategoryInputModel newCategory)
     {
         await _categoryService.RenameCategory(id, newCategory.Name);
@@ -99,10 +111,14 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE api/Categories/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveCategory([FromRoute] int id)
     {
         await _categoryService.RemoveCategory(id);
@@ -110,9 +126,13 @@ public class CategoryController : ControllerBase
     }
 
     // POST api/Categories/5/Parent/3
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost("{id}/Parent/{parentId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> LinkCategoryToParent([FromRoute] int id, [FromRoute] int? parentId)
     {
         await _categoryService.LinkCategoryToParent(id, parentId);
@@ -120,10 +140,14 @@ public class CategoryController : ControllerBase
     }
 
     // POST api/Categories/5/Section/3
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost("{id}/Section/{sectionId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> LinkCategoryToSection([FromRoute] int id, [FromRoute] int sectionId)
     {
         await _categoryService.LinkCategoryToSection(id, sectionId);
@@ -131,10 +155,14 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE api/Categories/5/Section/3
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpDelete("{id}/Section/{sectionId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UnlinkCategoryFromSection([FromRoute] int id, [FromRoute] int sectionId)
     {
         await _categoryService.UnlinkCategoryFromSection(id, sectionId);

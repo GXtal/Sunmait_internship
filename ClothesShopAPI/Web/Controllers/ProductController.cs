@@ -1,7 +1,12 @@
 ﻿using Application.Services;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Authorization;
+using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -124,9 +129,13 @@ public class ProductController : ControllerBase
     }
 
     // POST api/Products
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddProduct([FromBody] ProductInputModel newProduct)
     {
         await _productService.AddProduct(newProduct.Name, newProduct.Description,
@@ -135,10 +144,14 @@ public class ProductController : ControllerBase
     }
 
     // PUT api/Products/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductInputModel newProduct)
     {
         await _productService.UpdateProduct(id, newProduct.Name, newProduct.Description,
@@ -147,12 +160,16 @@ public class ProductController : ControllerBase
     }
 
     // GET api/Products/Orders/5
+    [Authorize]
     [HttpGet("Orders/{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderProductViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderProducts([FromRoute] int orderId)
     {
-        var orderProducts = await _productService.GetOrderProducts(orderId);
+        var userId = User.GetUserId();
+        var orderProducts = await _productService.GetOrderProducts(orderId, userId);
         var result = new List<OrderProductViewModel>();
         foreach (var orderProduct in orderProducts)
         {

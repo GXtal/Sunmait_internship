@@ -1,6 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Exceptions.Messages;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 
@@ -8,6 +9,7 @@ namespace Application.Services;
 
 public class ProductService : IProductService
 {
+    private readonly IUserRepository _userRepository;
     private readonly IBrandRepository _brandRepository;
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
@@ -15,13 +17,15 @@ public class ProductService : IProductService
     private readonly IOrderProductRepository _orderProductRepository;
 
     public ProductService(IBrandRepository brandRepository, IProductRepository productRepository,
-        ICategoryRepository categoryRepository, IOrderRepository orderRepository, IOrderProductRepository orderProductRepository)
+        ICategoryRepository categoryRepository, IOrderRepository orderRepository,
+        IOrderProductRepository orderProductRepository, IUserRepository userRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
+        _userRepository = userRepository;
     }
 
     public async Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
@@ -122,12 +126,22 @@ public class ProductService : IProductService
         await _productRepository.UpdateProduct(product);
     }
 
-    public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id)
+    public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id, int userId)
     {
         var order = await _orderRepository.GetOrderById(id);
         if (order == null)
         {
             throw new NotFoundException(String.Format(OrderExceptionsMessages.OrderNotFound, id));
+        }
+
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+        if (!(user.RoleId == (int)UserRole.Admin || order.UserId == userId))
+        {
+            throw new ForbiddenException(UserExceptionsMessages.ForbiddenRead);
         }
 
         var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);

@@ -11,13 +11,15 @@ public interface IOrderRepository
 {
     public Task<Order> GetOrderById(int id);
 
-    public Task<IEnumerable<Order>> GetOrdersByUser(User user);
+    public Task<IEnumerable<Order>> GetOrdersByUser(int userId);
 
     public Task<Order> AddOrder(Order order);
 
     public Task UpdateOrder(Order order);
 
     public Task RemoveOrder(Order order);
+
+    public Task<IEnumerable<Order>> GetOrdersByUserAndProduct(int userId, int productId);
 
     public Task Save();
 }

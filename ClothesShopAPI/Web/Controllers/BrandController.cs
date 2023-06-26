@@ -2,6 +2,10 @@
 using Domain.Interfaces.Services;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Web.Authorization;
+using Web.AuthorizationData;
+using Domain.Enums;
 
 namespace Web.Controllers;
 
@@ -33,9 +37,13 @@ public class BrandController : ControllerBase
     }
 
     // POST api/Brands
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddBrand([FromBody] BrandInputModel newBrand)
     {
         await _brandService.AddBrand(newBrand.Name);
@@ -43,10 +51,14 @@ public class BrandController : ControllerBase
     }
 
     // PUT api/Brands/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateBrand([FromRoute] int id, [FromBody] BrandInputModel newBrand)
     {
         await _brandService.RenameBrand(id, newBrand.Name);
@@ -54,10 +66,14 @@ public class BrandController : ControllerBase
     }
 
     // DELETE api/Brands/5
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveBrand([FromRoute] int id)
     {
         await _brandService.RemoveBrand(id);

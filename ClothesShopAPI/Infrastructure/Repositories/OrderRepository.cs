@@ -27,9 +27,19 @@ public class OrderRepository : IOrderRepository
         return order;
     }
 
-    public async Task<IEnumerable<Order>> GetOrdersByUser(User user)
+    public async Task<IEnumerable<Order>> GetOrdersByUserAndProduct(int userId, int productId)
     {
-        var orders = await _dbContext.Orders.Where(o => o.UserId == user.Id).ToListAsync();
+        var orders = await _dbContext.OrdersProducts.
+            Where(op => op.ProductId == productId).
+            Select(op => op.Order).
+            Where(o => o.UserId == userId).
+            ToListAsync();
+        return orders;
+    }
+
+    public async Task<IEnumerable<Order>> GetOrdersByUser(int userId)
+    {
+        var orders = await _dbContext.Orders.Where(o => o.UserId == userId).ToListAsync();
         return orders;
     }
 

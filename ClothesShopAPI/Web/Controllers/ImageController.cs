@@ -1,6 +1,10 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Enums;
+using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Web.Authorization;
+using Web.AuthorizationData;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -12,18 +16,20 @@ public class ImageController : ControllerBase
     private const string MimeType = "image/png";
 
     private readonly IImageService _imageService;
-    private readonly IWebHostEnvironment _environment;
 
-    public ImageController(IImageService imageService, IWebHostEnvironment environment)
+    public ImageController(IImageService imageService)
     {
         _imageService = imageService;
-        _environment = environment;
     }
 
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost("Products/{productId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddImage([FromRoute] int productId,[FromForm] ImageInputModel newImage)
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> AddImage([FromRoute] int productId, [FromForm] ImageInputModel newImage)
     {
         if (newImage.formFile.Length > 0)
         {
@@ -68,9 +74,13 @@ public class ImageController : ControllerBase
         return File(result, MimeType);
     }
 
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveImage([FromRoute] int id)
     {
         await _imageService.RemoveImage(id);

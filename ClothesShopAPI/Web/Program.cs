@@ -5,14 +5,55 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Web.Middlewares;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Web.AuthorizationData;
+using Web.Authorization;
+using Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var config = builder.Configuration;
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "a", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod(); ;
+    });
+
+});
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidIssuer = config[ConfigurationPaths.Issuer],
+        ValidAudience = config[ConfigurationPaths.Audience],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config[ConfigurationPaths.Key]!)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+});
+
+builder.Services.AddAuthorization();
+
 // Add services to the container.
-builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("ShopDbConnection")));
+builder.Services.AddDbContext<ShopDbContext>(o => o.UseNpgsql(config.GetConnectionString("ShopDbConnection")));
 // Add injections
 
+builder.Services.AddSingleton(builder);
+builder.Services.AddTransient<ITokenManager, TokenManager>();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IBrandRepository, BrandRepository>();
 builder.Services.AddTransient<ISectionRepository, SectionRepository>();
@@ -62,6 +103,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ErrorMiddleware>();
 
+app.UseCors("a");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,5 +1,7 @@
 ﻿using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -17,22 +19,28 @@ public class ReviewController : ControllerBase
     }
 
     // POST api/Reviews
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddReview([FromBody] ReviewInputModel newReview)
     {
-        await _reviewService.AddReview(newReview.Comment, newReview.Rating, newReview.ProductId, newReview.UserId);
+        var userId = User.GetUserId();
+        await _reviewService.AddReview(newReview.Comment, newReview.Rating, newReview.ProductId, userId);
         return new OkResult();
     }
 
     // DELETE api/Reviews/5
+    [Authorize]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveReview([FromRoute] int id)
     {
-        await _reviewService.RemoveReview(id);
+        var userId = User.GetUserId();
+        await _reviewService.RemoveReview(id, userId);
         return new OkResult();
     }
 

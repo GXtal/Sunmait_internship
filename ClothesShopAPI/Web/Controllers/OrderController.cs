@@ -1,6 +1,11 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Authorization;
+using Web.AuthorizationData;
+using Web.Extension;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -18,12 +23,16 @@ public class OrderController : ControllerBase
     }
 
     // GET api/Orders/5
+    [Authorize]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
-        var order = await _orderService.GetOrder(id);
+        var userId = User.GetUserId();
+        var order = await _orderService.GetOrder(id, userId);
         var result = new OrderViewModel()
         {
             Id = order.Id,
@@ -35,12 +44,16 @@ public class OrderController : ControllerBase
     }
 
     // GET api/Orders/5/History
+    [Authorize]
     [HttpGet("{id}/History")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderHistoryViewModel>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrderHistory([FromRoute] int id)
     {
-        var history = await _orderService.GetOrderHistory(id);
+        var userId = User.GetUserId();
+        var history = await _orderService.GetOrderHistory(id, userId);
         var result = new List<OrderHistoryViewModel>();
         foreach (var item in history)
         {
@@ -56,10 +69,14 @@ public class OrderController : ControllerBase
     }
 
     // POST api/Orders/5/History/3
+    [Authorize]
+    [RequiresClaim(CustomClaimNames.RoleId, (int)UserRole.Admin)]
     [HttpPost("{id}/History/{statusId}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddStatusToOrder([FromRoute] int id, [FromRoute] int statusId)
     {
         await _orderService.AddOrderStatus(id, statusId);
@@ -67,11 +84,16 @@ public class OrderController : ControllerBase
     }
 
     // GET api/Orders/User/5
+    [Authorize]
     [HttpGet("Users/{userId}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderViewModel>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrders([FromRoute] int userId)
     {
+        User.CheckIsOwnerOrAdmin(userId);
+
         var allOrders = await _orderService.GetOrders(userId);
 
         var result = new List<OrderViewModel>();
@@ -89,13 +111,16 @@ public class OrderController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    // POST api/Orders/User/5
-    [HttpPost("Users/{userId}")]
+    // POST api/Orders
+    [Authorize]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddOrder([FromRoute] int userId, [FromBody] IEnumerable<OrderProductInputModel> orderProducts)
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> AddOrder([FromBody] IEnumerable<OrderProductInputModel> orderProducts)
     {
+        var userId = User.GetUserId();
         var productsToAdd = new List<OrderProduct>();
         foreach (var orderProduct in orderProducts)
         {

@@ -22,5 +22,7 @@ public class User
 
     public ICollection<Review> Reviews { get; set; }
 
+    public ICollection<ReservedProduct> ReservedProducts { get; set; }
+
     public Role Role { get; set; }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using Web.AuthorizationData;
 using Web.Authorization;
 using Application.Interfaces;
+using Web.BackgroundTasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,8 @@ builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ISectionService, SectionService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IImageService, ImageService>();
+
+builder.Services.AddHostedService<PeriodicBackgroundTask>();
 
 builder.Services.AddTransient<ErrorMiddleware>();
 

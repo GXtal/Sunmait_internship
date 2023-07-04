@@ -63,7 +63,7 @@ public class BaseUnitTest
             .RuleFor(p => p.BrandId, f => f.Random.ArrayElement(brands.ToArray()).Id)
             .RuleFor(p => p.CategoryId, f => f.Random.ArrayElement(categories.ToArray()).Id)
             .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-            .RuleFor(p => p.Quantity, f => quantity)
+            .RuleFor(p => p.AvailableQuantity, f => quantity)
             .RuleFor(p => p.Price, f => f.Random.Decimal(1, 100))
             .RuleFor(p => p.Description, f => f.Lorem.Sentence());
 

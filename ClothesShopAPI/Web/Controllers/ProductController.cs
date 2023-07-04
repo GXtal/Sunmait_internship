@@ -41,7 +41,7 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                Quantity = product.AvailableQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -69,7 +69,7 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                Quantity = product.AvailableQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -97,7 +97,7 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                Quantity = product.AvailableQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -121,7 +121,7 @@ public class ProductController : ControllerBase
             CategoryId = product.CategoryId,
             Description = product.Description,
             Price = product.Price,
-            Quantity = product.Quantity,
+            Quantity = product.AvailableQuantity,
             CategoryName = product.Category.Name,
             BrandName = product.Brand.Name,
         };
@@ -184,4 +184,30 @@ public class ProductController : ControllerBase
         }
         return new OkObjectResult(result);
     }
+
+    // GET api/Products/Orders/5
+    [Authorize]
+    [HttpGet("Cart/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderProductViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetReservedProducts([FromRoute] int userId)
+    {
+        User.CheckIsOwnerOrAdmin(userId);
+        var orderProducts = await _productService.GetReservedProducts(userId);
+        var result = new List<OrderProductViewModel>();
+        foreach (var orderProduct in orderProducts)
+        {
+            result.Add(new OrderProductViewModel
+            {
+                ProductId = orderProduct.ProductId,
+                Count = orderProduct.Count,
+                ProductName = orderProduct.Product.Name,
+                ProductPrice = orderProduct.Product.Price,
+            });
+        }
+        return new OkObjectResult(result);
+    }
+
 }

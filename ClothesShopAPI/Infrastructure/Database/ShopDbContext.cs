@@ -31,6 +31,8 @@ public class ShopDbContext : DbContext
 
     public virtual DbSet<OrderProduct> OrdersProducts { get; set; }
 
+    public virtual DbSet<ReservedProduct> ReservedProducts { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }

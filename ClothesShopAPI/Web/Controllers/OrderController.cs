@@ -118,16 +118,11 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> AddOrder([FromBody] IEnumerable<OrderProductInputModel> orderProducts)
+    public async Task<IActionResult> AddOrder()
     {
         var userId = User.GetUserId();
-        var productsToAdd = new List<OrderProduct>();
-        foreach (var orderProduct in orderProducts)
-        {
-            productsToAdd.Add(new OrderProduct() { Count = orderProduct.Count, ProductId = orderProduct.ProductId });
-        }
 
-        await _orderService.AddOrder(userId, productsToAdd);
+        await _orderService.AddOrder(userId);
 
         return new OkResult();
     }

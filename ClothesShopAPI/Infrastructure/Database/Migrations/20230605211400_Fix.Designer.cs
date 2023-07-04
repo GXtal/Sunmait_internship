@@ -248,7 +248,7 @@ namespace Infrastructure.Database.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("money");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("AvailableQuantity")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

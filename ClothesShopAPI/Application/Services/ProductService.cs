@@ -50,7 +50,7 @@ public class ProductService : IProductService
             Name = newProductName,
             Description = newProductDescription,
             Price = newProductPrice,
-            Quantity = newProductQuantity
+            AvailableQuantity = newProductQuantity
         };
         await _productRepository.AddProduct(product);
     }
@@ -119,7 +119,7 @@ public class ProductService : IProductService
         product.Name = newProductName;
         product.Description = newProductDescription;
         product.Price = newProductPrice;
-        product.Quantity = newProductQuantity;
+        product.AvailableQuantity = newProductQuantity;
         product.BrandId = brandId;
         product.CategoryId = categoryId;
 

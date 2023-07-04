@@ -168,7 +168,7 @@ public class OrderServiceUnitTest : BaseUnitTest
             var usedProductsIds = inputProducts.Select(ip => ip.ProductId).ToList();
             var usedProducts = dbContext.Products.Where(p => usedProductsIds.Contains(p.Id));
 
-            usedProducts.All(up => up.Quantity == quantity - count).Should().BeTrue();
+            usedProducts.All(up => up.AvailableQuantity == quantity - count).Should().BeTrue();
 
             decimal cost = 0;
             foreach (var product in usedProducts)

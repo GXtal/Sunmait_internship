@@ -16,8 +16,8 @@ public class ProductInputModel
     [StringLength(200, ErrorMessage = "The Description field must not exceed 200 characters.")]
     public string Description { get; set; }
 
-    [Required(ErrorMessage = "The Quantity field is required.")]
-    [Range(0, 1000, ErrorMessage = "The Quantity field must be real")]
+    [Required(ErrorMessage = "The AvailableQuantity field is required.")]
+    [Range(0, 1000, ErrorMessage = "The AvailableQuantity field must be real")]
     public int Quantity { get; set; }
 
     [Required(ErrorMessage = "The CategoryId field is required.")]

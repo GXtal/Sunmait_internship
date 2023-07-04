@@ -19,4 +19,6 @@ public interface IProductService
         int newProductQuantity, int brandId, int categoryId);
 
     public Task<IEnumerable<OrderProduct>> GetOrderProducts(int orderId, int userId);
+
+    public Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId);
 }

@@ -75,13 +75,12 @@ public class OrderService : IOrderService
 
         var order = new Order() { UserId = userId, TotalCost = 0, StatusId = (int)OrderStatus.AwaitingConfirmation };
 
-        var reservedProducts = await _cartRepository.GetProductsFormCart(userId);
+        var reservedProducts = await _cartRepository.GetReservedProductsByUser(userId);
 
         order = await _orderRepository.AddOrder(order);
 
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = (int)OrderStatus.AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
-
     }
 
     public async Task<Order> GetOrder(int id, int userId)

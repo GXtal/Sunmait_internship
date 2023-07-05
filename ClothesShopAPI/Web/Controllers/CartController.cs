@@ -12,10 +12,13 @@ namespace Web.Controllers;
 public class CartController : ControllerBase
 {
     private readonly ICartService _cartService;
+    private readonly TimeSpan reservationTime;
+    private string configurationPath = "CartSettings:ReservationTime";
 
-    public CartController(ICartService cartService)
+    public CartController(ICartService cartService, WebApplicationBuilder applicationBuilder)
     {
         _cartService = cartService;
+        reservationTime = TimeSpan.FromMinutes(Int32.Parse(applicationBuilder.Configuration[configurationPath]));
     }
 
     [Authorize]
@@ -28,7 +31,7 @@ public class CartController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        await _cartService.AddProductToCart(userId, orderProduct.ProductId, orderProduct.Count);
+        await _cartService.AddProductToCart(userId, orderProduct.ProductId, orderProduct.Count, reservationTime);
 
         return new OkResult();
     }
@@ -58,7 +61,7 @@ public class CartController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        await _cartService.UpdateProductInCart(userId, productId, newCount);
+        await _cartService.UpdateProductInCart(userId, productId, newCount, reservationTime);
 
         return new OkResult();
     }

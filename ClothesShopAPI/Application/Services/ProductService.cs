@@ -147,4 +147,9 @@ public class ProductService : IProductService
         var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);
         return orderProducts;
     }
+
+    public Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId)
+    {
+        throw new NotImplementedException();
+    }
 }

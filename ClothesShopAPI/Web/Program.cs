@@ -11,7 +11,7 @@ using System.Text;
 using Web.AuthorizationData;
 using Web.Authorization;
 using Application.Interfaces;
-using Web.BackgroundTasks;
+using Web.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +70,7 @@ builder.Services.AddTransient<IRoleRepository, RoleRepository>();
 builder.Services.AddTransient<IStatusRepository, StatusRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IImageRepository, ImageRepository>();
+builder.Services.AddTransient<IReservedProductRepository, ReservedProductRepository>();
 
 builder.Services.AddTransient<ShopDbContext>();
 
@@ -83,8 +84,10 @@ builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ISectionService, SectionService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<IReservationService, ReservationService>();
 
-builder.Services.AddHostedService<PeriodicBackgroundTask>();
+builder.Services.AddHostedService<ReservationBackgroundService>();
 
 builder.Services.AddTransient<ErrorMiddleware>();
 

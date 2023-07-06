@@ -3,9 +3,12 @@ using Domain.Enums;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Web.Authorization;
 using Web.AuthorizationData;
 using Web.Extension;
+using Web.Hubs.ClientInterfaces;
+using Web.Hubs;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -16,10 +19,12 @@ namespace Web.Controllers;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
+    private readonly IHubContext<ProductCountHub, IProductCountClient> _hubContext;
 
-    public OrderController(IOrderService orderService)
+    public OrderController(IOrderService orderService, IHubContext<ProductCountHub, IProductCountClient> hubContext)
     {
         _orderService = orderService;
+        _hubContext = hubContext;
     }
 
     // GET api/Orders/5
@@ -122,7 +127,16 @@ public class OrderController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        await _orderService.AddOrder(userId);
+        var modifiedProducts = await _orderService.AddOrder(userId);
+        foreach (var product in modifiedProducts)
+        {
+            _hubContext.Clients.Group(product.Id.ToString()).GetProductCount(new ProductCountViewModel
+            {
+                ProductId = product.Id,
+                AvailableQuantity = product.AvailableQuantity,
+                ReservedQuantity = product.ReservedQuantity
+            });
+        }
 
         return new OkResult();
     }

@@ -12,6 +12,8 @@ using Web.AuthorizationData;
 using Web.Authorization;
 using Application.Interfaces;
 using Web.BackgroundServices;
+using Web.Hubs;
+using Web.Hubs.ClientInterfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +23,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "a", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod(); ;
+        policy.AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithOrigins("http://localhost:3000")
+            .AllowCredentials();
     });
 
 });
@@ -92,6 +95,7 @@ builder.Services.AddHostedService<ReservationBackgroundService>();
 builder.Services.AddTransient<ErrorMiddleware>();
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 builder.Services.AddProblemDetails();
 
@@ -115,5 +119,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ProductCountHub>("/hubs/ProductCount");
 
 app.Run();

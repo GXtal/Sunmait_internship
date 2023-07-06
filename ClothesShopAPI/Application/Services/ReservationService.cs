@@ -15,9 +15,9 @@ public class ReservationService : IReservationService
         _productRepository = productRepository;
     }
 
-    public async Task<IEnumerable<int>> DeleteExpiredReservations()
+    public async Task<IEnumerable<Product>> DeleteExpiredReservations()
     {
-        var modifiedProductsIds = new List<int>();
+        var modifiedProductsIds = new List<Product>();
         var expiredReservedProducts = await _reservedProductRepository.GetExpiredReservedProducts(DateTime.Now);
         foreach (var expiredReservedProduct in expiredReservedProducts)
         {
@@ -29,7 +29,7 @@ public class ReservationService : IReservationService
             await _reservedProductRepository.RemoveReservedProduct(expiredReservedProduct);
             await _productRepository.UpdateProduct(existingProduct);
 
-            modifiedProductsIds.Add(expiredReservedProduct.ProductId);
+            modifiedProductsIds.Add(existingProduct);
         }
 
         return modifiedProductsIds;

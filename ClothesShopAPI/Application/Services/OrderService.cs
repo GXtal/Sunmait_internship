@@ -65,7 +65,7 @@ public class OrderService : IOrderService
         await _orderRepository.UpdateOrder(order);
     }
 
-    public async Task AddOrder(int userId)
+    public async Task<IEnumerable<Product>> AddOrder(int userId)
     {
         var user = await _userRepository.GetUserById(userId);
         if (user == null)
@@ -76,11 +76,38 @@ public class OrderService : IOrderService
         var order = new Order() { UserId = userId, TotalCost = 0, StatusId = (int)OrderStatus.AwaitingConfirmation };
 
         var reservedProducts = await _cartRepository.GetReservedProductsByUser(userId);
+        if (reservedProducts.Count() == 0)
+        {
+            throw new BadRequestException(String.Format(CartExceptionMessages.CartIsEmpty, userId));
+        }
 
         order = await _orderRepository.AddOrder(order);
+        var modifiedProducts = new List<Product>();
+        foreach (var reservedProduct in reservedProducts)
+        {
+            var product = await _productRepository.GetProductById(reservedProduct.ProductId);
+            product.ReservedQuantity -= reservedProduct.Count;
+
+            var orderProduct = new OrderProduct()
+            {
+                Count = reservedProduct.Count,
+                ProductId = product.Id,
+                OrderId = order.Id
+            };
+
+            modifiedProducts.Add(product);
+            order.TotalCost += orderProduct.Count * product.Price;
+
+            await _productRepository.UpdateProduct(product);
+            await _orderProductRepository.AddOrderProduct(orderProduct);
+            await _cartRepository.RemoveReservedProduct(reservedProduct);
+        }        
 
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = (int)OrderStatus.AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
+        await _orderRepository.UpdateOrder(order);
+
+        return modifiedProducts;
     }
 
     public async Task<Order> GetOrder(int id, int userId)

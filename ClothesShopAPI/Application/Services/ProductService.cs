@@ -95,7 +95,7 @@ public class ProductService : IProductService
         return products;
     }
 
-    public async Task UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
+    public async Task<Product> UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId)
     {
         var product = await _productRepository.GetProductById(id);
@@ -124,6 +124,7 @@ public class ProductService : IProductService
         product.CategoryId = categoryId;
 
         await _productRepository.UpdateProduct(product);
+        return product;
     }
 
     public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id, int userId)

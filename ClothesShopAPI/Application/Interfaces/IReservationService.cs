@@ -1,6 +1,8 @@
-﻿namespace Application.Interfaces;
+﻿using Domain.Entities;
+
+namespace Application.Interfaces;
 
 public interface IReservationService
 {
-    public Task<IEnumerable<int>> DeleteExpiredReservations();
+    public Task<IEnumerable<Product>> DeleteExpiredReservations();
 }

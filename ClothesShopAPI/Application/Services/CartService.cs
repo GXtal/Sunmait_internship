@@ -20,7 +20,7 @@ public class CartService : ICartService
         _userRepository = userRepository;
     }
 
-    public async Task AddProductToCart(int userId, int productId, int count, TimeSpan reservationTime)
+    public async Task<Product> AddProductToCart(int userId, int productId, int count, TimeSpan reservationTime)
     {
         var user = _userRepository.GetUserById(userId);
         if (user == null)
@@ -52,9 +52,11 @@ public class CartService : ICartService
 
         await _reservedProductRepository.AddReservedProduct(reservedProduct);
         await _productRepository.UpdateProduct(product);
+
+        return product;
     }
 
-    public async Task RemoveProductFromCart(int userId, int productId)
+    public async Task<Product> RemoveProductFromCart(int userId, int productId)
     {
         var user = _userRepository.GetUserById(userId);
         if (user == null)
@@ -79,9 +81,11 @@ public class CartService : ICartService
 
         await _reservedProductRepository.RemoveReservedProduct(reservedProduct);
         await _productRepository.UpdateProduct(product);
+
+        return product;
     }
 
-    public async Task UpdateProductInCart(int userId, int productId, int newCount, TimeSpan reservationTime)
+    public async Task<Product> UpdateProductInCart(int userId, int productId, int newCount, TimeSpan reservationTime)
     {
         var user = _userRepository.GetUserById(userId);
         if (user == null)
@@ -116,5 +120,7 @@ public class CartService : ICartService
 
         await _reservedProductRepository.UpdateReservedProduct(reservedProduct);
         await _productRepository.UpdateProduct(product);
+
+        return product;
     }
 }

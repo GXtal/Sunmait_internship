@@ -63,7 +63,7 @@ public class UserController : ControllerBase
 
         var token = _tokenManager.GenerateToken(user);
 
-        var result = new TokenViewModel() { Token = token };
+        var result = new TokenViewModel() { Token = token, Id = user.Id };
 
         return new OkObjectResult(result);
     }

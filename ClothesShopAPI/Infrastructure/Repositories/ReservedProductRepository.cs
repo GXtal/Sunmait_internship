@@ -40,6 +40,7 @@ public class ReservedProductRepository : IReservedProductRepository
     public async Task<IEnumerable<ReservedProduct>> GetReservedProductsByUser(int userId)
     {
         var reservedProducts = await _dbContext.ReservedProducts.
+            Include(rp => rp.Product).
             Where(rp => rp.UserId == userId).
             ToListAsync();
         return reservedProducts;

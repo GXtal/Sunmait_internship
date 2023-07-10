@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 import axios from 'axios'
+import {AuthContext} from "../contexts/AuthContext";
 
 function LoginPage() {
+
+  const {loading, error, dispatch} = useContext(AuthContext)
 
   const [credentials, setCredentials] = useState({
     email: undefined,
@@ -9,6 +13,8 @@ function LoginPage() {
     name: undefined,
     surname: undefined
   })
+
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setCredentials(prev => ({ ...prev, [e.target.id]: e.target.value }))
@@ -19,14 +25,17 @@ function LoginPage() {
     
     var req =
     {
-      Email: credentials.email,
-      Password: credentials.password
+      email: credentials.email,
+      password: credentials.password
     }
     console.log(req);
     try
     {
-      const res = axios.post("http://localhost:5233/api/Users/login", req);
+      const res = await axios.post("http://localhost:5233/api/Users/login", req);
       console.log(res.data);
+      localStorage.setItem("accessToken", res.data.token)
+      dispatch({type: "LOGIN_SUCCESS", payload: res.data})
+      navigate("/")
     }
     catch (e)
     {
@@ -46,8 +55,10 @@ function LoginPage() {
     }
     try
     {
-      const res = axios.post("http://localhost:5233/api/Users/register", req);
+      const res = await axios.post("http://localhost:5233/api/Users/register", req);
       console.log(res.data);
+      localStorage.setItem("accessToken",res.data.token)
+      navigate("/")
     }
     catch (e)
     {

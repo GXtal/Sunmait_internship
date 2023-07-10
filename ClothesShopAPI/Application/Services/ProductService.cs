@@ -15,10 +15,11 @@ public class ProductService : IProductService
     private readonly ICategoryRepository _categoryRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderProductRepository _orderProductRepository;
+    private readonly IReservedProductRepository _reservedProductRepository;
 
     public ProductService(IBrandRepository brandRepository, IProductRepository productRepository,
         ICategoryRepository categoryRepository, IOrderRepository orderRepository,
-        IOrderProductRepository orderProductRepository, IUserRepository userRepository)
+        IOrderProductRepository orderProductRepository, IUserRepository userRepository, IReservedProductRepository reservedProductRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
@@ -26,6 +27,7 @@ public class ProductService : IProductService
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
         _userRepository = userRepository;
+        _reservedProductRepository = reservedProductRepository;
     }
 
     public async Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
@@ -149,8 +151,15 @@ public class ProductService : IProductService
         return orderProducts;
     }
 
-    public Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId)
+    public async Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+
+        var reservedProducts = await _reservedProductRepository.GetReservedProductsByUser(userId);
+        return reservedProducts;
     }
 }

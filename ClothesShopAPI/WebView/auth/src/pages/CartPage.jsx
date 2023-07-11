@@ -11,7 +11,6 @@ function CartPage() {
   useEffect(() => {
     api.get(`Products/Cart/${id}`).then(res => {
       setCartProducts(res.data);
-      console.log(res);
     });
   }, [id])
 
@@ -20,11 +19,12 @@ function CartPage() {
     api.post("Orders");
     window.location.reload(false);
   }
+
   return <div className="CartPage">
     {cartProducts.map((product) =>
       <CartItem key={product.productId} product={product} />
     )}
-    <button onClick={handleClick}>Create order</button>
+    <button className="navigate" onClick={handleClick}>Create order</button>
   </div>
 }
 

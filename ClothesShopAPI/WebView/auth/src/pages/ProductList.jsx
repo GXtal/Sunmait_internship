@@ -16,9 +16,9 @@ function ProductList() {
     return (<div className="ProductList">
 
         {products.map((product) =>
-            <Link to={`/products/${product.id}`} key={product.id}>
+            <a className='nice-link' href={`/products/${product.id}`} key={product.id}>
                 <ProductItem  product={product}/>
-            </Link>           
+            </a>           
         )}
 
     </div>);

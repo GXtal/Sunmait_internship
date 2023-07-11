@@ -3,15 +3,11 @@ body {
 }
 
 .ProductItem {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 20px;
-    margin: 20px;
-    border: 1px solid #ccc;
+
+
     border-radius: 5px;
     background-color: #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
     text-align: center;
 }
 
@@ -45,4 +41,107 @@ header {
 
 .nabigate-group {
     display: flex;
+}
+
+.ProductItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.CartItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.column-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.normal-text {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.small-text {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.available-text {
+    color: green;
+}
+
+.reserved-text {
+    color: red;
+}
+
+.ProductList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 20px;
+}
+
+.nice-link {
+    text-decoration: none;
+    color: #333;
+}
+
+.nice-link:hover {
+    color: #555;
+}
+
+.ImagePlace {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.kittenImage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 230px;
+    width: 270px;
+    object-fit: fill
+}
+
+.cart-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cart-label {
+    margin-right: 10px;
+}
+
+.cart-input {
+    width: 50px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.cart-button {
+    padding: 5px 10px;
+    background-color: #337ab7;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.cart-button:hover {
+    background-color: #23527c;
 }

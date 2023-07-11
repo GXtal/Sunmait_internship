@@ -26,28 +26,30 @@ function CartItem(props) {
             console.log(data);
           });
 
-          connection.send('JoinProductGroup', parseInt(props.product.id));
+          connection.send('JoinProductGroup', parseInt(props.product.productId));
         })
-        .catch(e => console.log('Connection failed: ', e));          
+        .catch(e => console.log('Connection failed: ', e));
     }
   }, [connection, props.product.id]);
 
-  useEffect(()=>
-  {
+  useEffect(() => {
 
-  },[allQuantity])
+  }, [allQuantity])
 
   return <div className="CartItem">
-    {props.product.productName} <br/>
-    In cart: 
-    {props.product.count}
-    {allQuantity &&
-      <div>
-        available:{allQuantity.availableQuantity} <br/>
-        reserved:{allQuantity.reservedQuantity}
-      </div>}
-      
+    <div className='column-text'>
+      <span className='normal-text'>{props.product.productName}</span>
+      <span className='normal-text'>in cart: {props.product.count}</span>
+      {allQuantity && (
+        <span className='normal-text'>
+          <span className='available-text'>available: {allQuantity.availableQuantity}</span>
+          <br />
+          <span className='reserved-text'>reserved: {allQuantity.reservedQuantity}</span>
+        </span>
+      )}
+    </div>
   </div>
+
 }
 
 export default CartItem;

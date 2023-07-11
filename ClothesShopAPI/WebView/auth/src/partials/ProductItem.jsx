@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import ImagePlace from "./ImagePlace";
 
 function ProductItem(props) {
 
@@ -28,23 +29,30 @@ function ProductItem(props) {
 
           connection.send('JoinProductGroup', parseInt(props.product.id));
         })
-        .catch(e => console.log('Connection failed: ', e));          
+        .catch(e => console.log('Connection failed: ', e));
     }
   }, [connection, props.product.id]);
 
-  useEffect(()=>
-  {
+  useEffect(() => {
 
-  },[allQuantity])
+  }, [allQuantity])
 
   return <div className="ProductItem">
-    {props.product.name}
-    {allQuantity &&
-      <div>
-        available:{allQuantity.availableQuantity} <br/>
-        reserved:{allQuantity.reservedQuantity}
-      </div>}
-  </div>
+  <div className='column-text'>
+    <ImagePlace productId={props.product.id}/>
+    <span className='normal-text'>{props.product.name}</span>
+    <span className='normal-text'>Price : ${props.product.price}</span>
+    <span className='small-text'>{props.product.categoryName}</span>
+    <span className='small-text'>{props.product.brandName}</span>
+    {allQuantity && (
+      <span className='normal-text'>
+        <span className='available-text'>available: {allQuantity.availableQuantity}</span>
+        <br />
+        <span className='reserved-text'>reserved: {allQuantity.reservedQuantity}</span>
+      </span>
+    )}
+  </div>    
+</div>
 }
 
 export default ProductItem;

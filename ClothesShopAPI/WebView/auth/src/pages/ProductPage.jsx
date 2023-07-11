@@ -27,14 +27,15 @@ function ProductPage() {
     })
   }, [productId]);
 
-  return product ? (<div className="ProductPage">
+  return product ? (<div className="ProductItem">
     <ProductItem product={product} />
     <ViewersCount productId={productId} />
     {id &&
-      <div><span> Add to cart count</span>
-        <input onChange={handleCartCount}></input>
-        <button onClick={handleClick}>Add</button>
-      </div>}
+      <div className="cart-container">
+      <span className="cart-label">Add to cart count:</span>
+      <input className="cart-input" onChange={handleCartCount} />
+      <button className="cart-button" onClick={handleClick}>Add</button>
+    </div>}
 
   </div>) : <></>
 }

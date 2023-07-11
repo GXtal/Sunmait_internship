@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
 import api from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
 import CartItem from "../partials/CartItem"

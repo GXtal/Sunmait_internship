@@ -24,16 +24,4 @@ public class ProductCountHub : Hub<IProductCountClient>
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, productId.ToString());
     }
-
-    public async override Task OnConnectedAsync()
-    {
-        Console.WriteLine("new connection!!");
-        await base.OnConnectedAsync();
-    }
-
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        Console.WriteLine("lost connection!!");
-        return base.OnDisconnectedAsync(exception);
-    }
 }

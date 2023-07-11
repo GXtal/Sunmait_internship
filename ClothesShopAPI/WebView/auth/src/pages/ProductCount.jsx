@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import { AuthContext } from '../contexts/AuthContext';
 
 const ProductCount = (props) => {
-    const [ProductId, setProductId] = useState('');
-    const [ connection, setConnection ] = useState(null);
+    const [productId, setProductId] = useState('');
+    const [connection, setConnection] = useState(null);
+
+    const {id} = useContext(AuthContext);
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -11,9 +14,9 @@ const ProductCount = (props) => {
         console.log(connection._connectionStarted);
         if (connection._connectionStarted) {
             try {
-                await connection.send('JoinProductGroup', parseInt(ProductId));
+                await connection.send('JoinProductGroup', parseInt(productId));
             }
-            catch(e) {
+            catch (e) {
                 console.log(e);
             }
         }
@@ -27,10 +30,24 @@ const ProductCount = (props) => {
     }
 
     useEffect(() => {
-        const newConnection = new HubConnectionBuilder()
-            .withUrl('http://localhost:5233/hubs/ProductCount')
+        let newConnection;
+        if (id)
+        {
+            const token=localStorage.getItem("accessToken");
+            newConnection = new HubConnectionBuilder()
+            .withUrl('http://localhost:5233/hubs/ProductViewersCount', { accessTokenFactory: () => token })
             .withAutomaticReconnect()
             .build();
+            console.log("with token");
+        }
+        else
+        {
+            newConnection = new HubConnectionBuilder()
+            .withUrl('http://localhost:5233/hubs/ProductViewersCount')
+            .withAutomaticReconnect()
+            .build();
+        }
+        
 
         setConnection(newConnection);
     }, []);
@@ -40,8 +57,8 @@ const ProductCount = (props) => {
             connection.start()
                 .then(result => {
                     console.log('Connected!');
-    
-                    connection.on('GetProductCount', data => {
+
+                    connection.on('GetViewersCount', data => {
                         console.log(data);
                     });
                 })
@@ -50,16 +67,16 @@ const ProductCount = (props) => {
     }, [connection]);
 
     return (
-        <form 
+        <form
             onSubmit={onSubmit}>
             <label htmlFor="ProductId">ProductId:</label>
             <br />
-            <input 
-                id="ProductId" 
-                name="ProductId" 
-                value={ProductId}
+            <input
+                id="ProductId"
+                name="ProductId"
+                value={productId}
                 onChange={onProductIdUpdate} />
-            <br/>            
+            <br />
             <button>Submit</button>
         </form>
     )

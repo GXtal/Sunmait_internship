@@ -4,8 +4,7 @@ import AuthService from "../services/AuthService";
 import { AuthContext } from '../contexts/AuthContext';
 
 function Header(props) {
-
-    const [token, setToken] = useState(null);
+    
     const navigate = useNavigate();
     const {id, dispatch} = useContext(AuthContext);
 
@@ -21,12 +20,6 @@ function Header(props) {
         }
     }
 
-    useEffect(()=>
-    {
-        var t = localStorage.getItem("accessToken");
-        setToken(t);
-    })
-
     return (
         <div className="navbar">
             <header>
@@ -34,7 +27,7 @@ function Header(props) {
 
                     <Link to="/" className="navigate">Home</Link>
 
-                    {token ?
+                    {id ?
                         (
                             <div className="nabigate-group">                                
                                 <button onClick={handleClick} className="nice-button">Logout</button>

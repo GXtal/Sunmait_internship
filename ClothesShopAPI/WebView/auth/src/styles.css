@@ -1,0 +1,48 @@
+body {
+    background-color: #fff;
+}
+
+.ProductItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.navbar {
+    background-color: #ccc;
+    border: 1px solid #ccc;
+}
+
+header {
+    padding: 20px;
+}
+
+.header-full {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navigate {
+    text-decoration: none;
+    color: #333;
+    margin-right: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.navigate:hover {
+    background-color: #fff;
+}
+
+.nabigate-group {
+    display: flex;
+}

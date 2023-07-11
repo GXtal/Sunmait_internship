@@ -13,7 +13,7 @@ using Web.Authorization;
 using Application.Interfaces;
 using Web.BackgroundServices;
 using Web.Hubs;
-using Web.Hubs.ClientInterfaces;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +47,22 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
+    };
+
+    x.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/hubs/ProductViewersCount")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -89,6 +105,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<ICartService, CartService>();
 builder.Services.AddTransient<IReservationService, ReservationService>();
+builder.Services.AddSingleton<IViewersCountService, ViewersCountService>();
 
 builder.Services.AddHostedService<ReservationBackgroundService>();
 
@@ -120,5 +137,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ProductCountHub>("/hubs/ProductCount");
+app.MapHub<ProductViewersCountHub>("/hubs/ProductViewersCount");
 
 app.Run();

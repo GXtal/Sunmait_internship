@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import api from '../api/axios';
 
 function CartItem(props) {
 
@@ -30,16 +31,23 @@ function CartItem(props) {
         })
         .catch(e => console.log('Connection failed: ', e));
     }
-  }, [connection, props.product.id]);
+  }, [connection, props.product.productId]);
 
   useEffect(() => {
 
   }, [allQuantity])
 
+  const removeFromCartHandle = () => {
+    api.delete(`Cart/${props.product.productId}`);
+    window.location.reload(false);
+    
+  }
+
   return <div className="CartItem">
     <div className='column-text'>
       <span className='normal-text'>{props.product.productName}</span>
       <span className='normal-text'>in cart: {props.product.count}</span>
+      <button onClick={removeFromCartHandle}>Remove</button>
       {allQuantity && (
         <span className='normal-text'>
           <span className='available-text'>available: {allQuantity.availableQuantity}</span>

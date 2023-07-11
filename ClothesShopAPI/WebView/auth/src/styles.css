@@ -145,3 +145,37 @@ header {
 .cart-button:hover {
     background-color: #23527c;
 }
+
+.LoginPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .LoginPage > div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  
+  .LoginPage > div > span {
+    margin-bottom: 5px;
+  }
+  
+  .LoginPage input[type="text"],
+  .LoginPage input[type="password"] {
+    padding: 5px;
+  }
+  
+  .LoginPage button {
+    padding: 5px 10px;
+    margin-top: 10px;
+    background-color: #337ab7;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .LoginPage button:hover {
+    background-color: #23527c;
+  }

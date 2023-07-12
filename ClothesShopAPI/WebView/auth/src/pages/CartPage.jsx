@@ -16,8 +16,8 @@ function CartPage() {
 
   const handleClick = (e) => {
     e.preventDefault();
-    api.post("Orders");
-    window.location.reload(false);
+    api.post("Orders").then( res => window.location.reload(false)).catch(err => alert(err.detail));
+    
   }
 
   return <div className="CartPage">

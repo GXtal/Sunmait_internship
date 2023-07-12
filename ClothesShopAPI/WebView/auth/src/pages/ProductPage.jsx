@@ -19,7 +19,7 @@ function ProductPage() {
 
   const handleClick = (e) => {
     e.preventDefault();
-    api.post("Cart", { productId: productId, count: cartCount });
+    api.post("Cart", { productId: productId, count: cartCount }).catch(err => alert(err.detail));
   }
   useEffect(() => {
     api.get(`Products/${productId}`).then(res => {

@@ -45,7 +45,7 @@ public class CartController : ControllerBase
             AvailableQuantity = product.AvailableQuantity,
             ReservedQuantity = product.ReservedQuantity
         });
-        
+
         return new OkResult();
     }
 

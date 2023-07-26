@@ -101,7 +101,7 @@ public class OrderService : IOrderService
             await _productRepository.UpdateProduct(product);
             await _orderProductRepository.AddOrderProduct(orderProduct);
             await _cartRepository.RemoveReservedProduct(reservedProduct);
-        }        
+        }
 
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = (int)OrderStatus.AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);

@@ -119,7 +119,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
-    {        
+    {
         var product = await _productService.GetProduct(id);
         var result = new ProductViewModel()
         {

@@ -19,8 +19,8 @@ public class ProductViewersCountHub : Hub<IProductViewersCountClient>
     }
 
     public async Task JoinProductGroup(int productId)
-    {        
-        if(Context.User.Identity.IsAuthenticated)
+    {
+        if (Context.User.Identity.IsAuthenticated)
         {
             var userId = Context.User.GetUserId();
             await _viewersCountService.AddWatchingUser(userId, productId);
@@ -31,7 +31,7 @@ public class ProductViewersCountHub : Hub<IProductViewersCountClient>
         {
             ViewersCount = viewersCount,
             ProductId = productId
-        });        
+        });
     }
     public async Task LeaveProductGroup(int productId)
     {

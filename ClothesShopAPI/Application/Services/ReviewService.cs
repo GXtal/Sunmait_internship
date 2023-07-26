@@ -42,7 +42,7 @@ public class ReviewService : IReviewService
         {
             throw new ForbiddenException(UserExceptionsMessages.ForbiddenModify);
         }
-        
+
         var review = new Review() { Comment = newReviewComment, ProductId = productId, UserId = userId, Rating = rating };
         await _reviewRepository.AddReview(review);
     }

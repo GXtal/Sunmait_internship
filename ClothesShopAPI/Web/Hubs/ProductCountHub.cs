@@ -11,7 +11,7 @@ public class ProductCountHub : Hub<IProductCountClient>
     public async Task JoinProductGroup(int productId, [FromServices] IProductService productService)
     {
         var product = await productService.GetProduct(productId);
-        await Groups.AddToGroupAsync(Context.ConnectionId, productId.ToString());        
+        await Groups.AddToGroupAsync(Context.ConnectionId, productId.ToString());
         await Clients.Caller.GetProductCount(new ProductCountViewModel()
         {
             AvailableQuantity = product.AvailableQuantity,

@@ -18,8 +18,8 @@ public class ViewersCountService : IViewersCountService
             viewers = new List<int>();
             currentViewers.Add(productId, viewers);
         }
-        
-        if(!viewers.Contains(userId))
+
+        if (!viewers.Contains(userId))
         {
             viewers.Add(userId);
         }

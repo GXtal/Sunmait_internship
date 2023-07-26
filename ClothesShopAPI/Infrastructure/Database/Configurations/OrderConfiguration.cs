@@ -20,7 +20,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(e => e.StatusId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         builder.Property(e => e.TotalCost)
             .HasColumnType("money")
             .IsRequired();

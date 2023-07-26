@@ -10,7 +10,9 @@ public class Product
 
     public string Description { get; set; }
 
-    public int Quantity { get; set; }
+    public int AvailableQuantity { get; set; }
+
+    public int ReservedQuantity { get; set; }
 
     public int CategoryId { get; set; }
 
@@ -23,6 +25,8 @@ public class Product
     public ICollection<Image> Images { get; set; }
 
     public ICollection<OrderProduct> OrdersProducts { get; set; }
+
+    public ICollection<ReservedProduct> ReservedProducts { get; set; }
 
     public ICollection<Review> Reviews { get; set; }
 }

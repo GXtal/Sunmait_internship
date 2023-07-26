@@ -23,10 +23,12 @@ public class OrderService : IOrderService
     private readonly IProductRepository _productRepository;
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IStatusRepository _statusRepository;
+    private readonly IReservedProductRepository _cartRepository;
 
     public OrderService(IUserRepository userRepository, IOrderRepository orderRepository,
         IOrderHistoryRepository orderHistoryRepository, IProductRepository productRepository,
-        IOrderProductRepository orderProductRepository, IStatusRepository statusRepository)
+        IOrderProductRepository orderProductRepository, IStatusRepository statusRepository,
+        IReservedProductRepository cartRepository)
     {
         _userRepository = userRepository;
         _orderRepository = orderRepository;
@@ -34,6 +36,7 @@ public class OrderService : IOrderService
         _productRepository = productRepository;
         _orderProductRepository = orderProductRepository;
         _statusRepository = statusRepository;
+        _cartRepository = cartRepository;
     }
 
     public async Task AddOrderStatus(int id, int statusId)
@@ -62,7 +65,7 @@ public class OrderService : IOrderService
         await _orderRepository.UpdateOrder(order);
     }
 
-    public async Task AddOrder(int userId, IEnumerable<OrderProduct> orderProducts)
+    public async Task<IEnumerable<Product>> AddOrder(int userId)
     {
         var user = await _userRepository.GetUserById(userId);
         if (user == null)
@@ -72,38 +75,39 @@ public class OrderService : IOrderService
 
         var order = new Order() { UserId = userId, TotalCost = 0, StatusId = (int)OrderStatus.AwaitingConfirmation };
 
-        foreach (var orderProduct in orderProducts)
+        var reservedProducts = await _cartRepository.GetReservedProductsByUser(userId);
+        if (reservedProducts.Count() == 0)
         {
-            var product = await _productRepository.GetProductById(orderProduct.ProductId);
-            if (product == null)
-            {
-                throw new NotFoundException(String.Format(ProductExceptionsMessages.ProductNotFound, orderProduct.ProductId));
-            }
-
-            if (product.Quantity < orderProduct.Count)
-            {
-                throw new BadRequestException(String.Format(ProductExceptionsMessages.ProductNotEnoughQuantity, orderProduct.ProductId));
-            }
+            throw new BadRequestException(String.Format(CartExceptionMessages.CartIsEmpty, userId));
         }
 
         order = await _orderRepository.AddOrder(order);
+        var modifiedProducts = new List<Product>();
+        foreach (var reservedProduct in reservedProducts)
+        {
+            var product = await _productRepository.GetProductById(reservedProduct.ProductId);
+            product.ReservedQuantity -= reservedProduct.Count;
+
+            var orderProduct = new OrderProduct()
+            {
+                Count = reservedProduct.Count,
+                ProductId = product.Id,
+                OrderId = order.Id
+            };
+
+            modifiedProducts.Add(product);
+            order.TotalCost += orderProduct.Count * product.Price;
+
+            await _productRepository.UpdateProduct(product);
+            await _orderProductRepository.AddOrderProduct(orderProduct);
+            await _cartRepository.RemoveReservedProduct(reservedProduct);
+        }        
 
         var orderHistory = new OrderHistory() { OrderId = order.Id, StatusId = (int)OrderStatus.AwaitingConfirmation, SetTime = DateTime.Now };
         await _orderHistoryRepository.AddHistory(orderHistory);
+        await _orderRepository.UpdateOrder(order);
 
-        foreach (var orderProduct in orderProducts)
-        {
-            var product = await _productRepository.GetProductById(orderProduct.ProductId);
-
-            orderProduct.OrderId = order.Id;
-            await _orderProductRepository.AddOrderProduct(orderProduct);
-
-            product.Quantity -= orderProduct.Count;
-            await _productRepository.UpdateProduct(product);
-
-            order.TotalCost += orderProduct.Count * product.Price;
-            await _orderRepository.UpdateOrder(order);
-        }
+        return modifiedProducts;
     }
 
     public async Task<Order> GetOrder(int id, int userId)

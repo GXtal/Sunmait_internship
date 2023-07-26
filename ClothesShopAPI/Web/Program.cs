@@ -11,6 +11,9 @@ using System.Text;
 using Web.AuthorizationData;
 using Web.Authorization;
 using Application.Interfaces;
+using Web.BackgroundServices;
+using Web.Hubs;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +23,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "a", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod(); ;
+        policy.AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithOrigins("http://localhost:3000")
+            .AllowCredentials();
     });
 
 });
@@ -43,6 +47,22 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
+    };
+
+    x.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/hubs/ProductViewersCount")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -69,6 +89,7 @@ builder.Services.AddTransient<IRoleRepository, RoleRepository>();
 builder.Services.AddTransient<IStatusRepository, StatusRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IImageRepository, ImageRepository>();
+builder.Services.AddTransient<IReservedProductRepository, ReservedProductRepository>();
 
 builder.Services.AddTransient<ShopDbContext>();
 
@@ -82,10 +103,16 @@ builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<ISectionService, SectionService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<IReservationService, ReservationService>();
+builder.Services.AddSingleton<IViewersCountService, ViewersCountService>();
+
+builder.Services.AddHostedService<ReservationBackgroundService>();
 
 builder.Services.AddTransient<ErrorMiddleware>();
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 builder.Services.AddProblemDetails();
 
@@ -109,5 +136,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ProductCountHub>("/hubs/ProductCount");
+app.MapHub<ProductViewersCountHub>("/hubs/ProductViewersCount");
 
 app.Run();

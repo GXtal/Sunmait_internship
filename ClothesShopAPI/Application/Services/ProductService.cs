@@ -15,10 +15,11 @@ public class ProductService : IProductService
     private readonly ICategoryRepository _categoryRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderProductRepository _orderProductRepository;
+    private readonly IReservedProductRepository _reservedProductRepository;
 
     public ProductService(IBrandRepository brandRepository, IProductRepository productRepository,
         ICategoryRepository categoryRepository, IOrderRepository orderRepository,
-        IOrderProductRepository orderProductRepository, IUserRepository userRepository)
+        IOrderProductRepository orderProductRepository, IUserRepository userRepository, IReservedProductRepository reservedProductRepository)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
@@ -26,6 +27,7 @@ public class ProductService : IProductService
         _orderRepository = orderRepository;
         _orderProductRepository = orderProductRepository;
         _userRepository = userRepository;
+        _reservedProductRepository = reservedProductRepository;
     }
 
     public async Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
@@ -50,7 +52,7 @@ public class ProductService : IProductService
             Name = newProductName,
             Description = newProductDescription,
             Price = newProductPrice,
-            Quantity = newProductQuantity
+            AvailableQuantity = newProductQuantity
         };
         await _productRepository.AddProduct(product);
     }
@@ -95,7 +97,7 @@ public class ProductService : IProductService
         return products;
     }
 
-    public async Task UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
+    public async Task<Product> UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId)
     {
         var product = await _productRepository.GetProductById(id);
@@ -119,11 +121,12 @@ public class ProductService : IProductService
         product.Name = newProductName;
         product.Description = newProductDescription;
         product.Price = newProductPrice;
-        product.Quantity = newProductQuantity;
+        product.AvailableQuantity = newProductQuantity;
         product.BrandId = brandId;
         product.CategoryId = categoryId;
 
         await _productRepository.UpdateProduct(product);
+        return product;
     }
 
     public async Task<IEnumerable<OrderProduct>> GetOrderProducts(int id, int userId)
@@ -146,5 +149,17 @@ public class ProductService : IProductService
 
         var orderProducts = await _orderProductRepository.GetOrderProductsByOrder(order);
         return orderProducts;
+    }
+
+    public async Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId)
+    {
+        var user = await _userRepository.GetUserById(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(String.Format(UserExceptionsMessages.UserNotFound, userId));
+        }
+
+        var reservedProducts = await _reservedProductRepository.GetReservedProductsByUser(userId);
+        return reservedProducts;
     }
 }

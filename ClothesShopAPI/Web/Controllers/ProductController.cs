@@ -4,9 +4,12 @@ using Domain.Enums;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Web.Authorization;
 using Web.AuthorizationData;
 using Web.Extension;
+using Web.Hubs.ClientInterfaces;
+using Web.Hubs;
 using Web.Models.InputModels;
 using Web.Models.ViewModels;
 
@@ -17,10 +20,12 @@ namespace Web.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly IHubContext<ProductCountHub, IProductCountClient> _hubContext;
 
-    public ProductController(IProductService productService)
+    public ProductController(IProductService productService, IHubContext<ProductCountHub, IProductCountClient> hubContext)
     {
         _productService = productService;
+        _hubContext = hubContext;
     }
 
     // GET: api/Products
@@ -41,7 +46,8 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                AvailableQuantity = product.AvailableQuantity,
+                ReservedQuantity = product.ReservedQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -69,7 +75,8 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                AvailableQuantity = product.AvailableQuantity,
+                ReservedQuantity = product.ReservedQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -97,7 +104,8 @@ public class ProductController : ControllerBase
                 CategoryId = product.CategoryId,
                 Description = product.Description,
                 Price = product.Price,
-                Quantity = product.Quantity,
+                AvailableQuantity = product.AvailableQuantity,
+                ReservedQuantity = product.ReservedQuantity,
                 CategoryName = product.Category.Name,
                 BrandName = product.Brand.Name,
             });
@@ -111,7 +119,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductViewModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
-    {
+    {        
         var product = await _productService.GetProduct(id);
         var result = new ProductViewModel()
         {
@@ -121,7 +129,8 @@ public class ProductController : ControllerBase
             CategoryId = product.CategoryId,
             Description = product.Description,
             Price = product.Price,
-            Quantity = product.Quantity,
+            AvailableQuantity = product.AvailableQuantity,
+            ReservedQuantity = product.ReservedQuantity,
             CategoryName = product.Category.Name,
             BrandName = product.Brand.Name,
         };
@@ -154,8 +163,15 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductInputModel newProduct)
     {
-        await _productService.UpdateProduct(id, newProduct.Name, newProduct.Description,
+        var product = await _productService.UpdateProduct(id, newProduct.Name, newProduct.Description,
             newProduct.Price, newProduct.Quantity, newProduct.BrandId, newProduct.CategoryId);
+        _hubContext.Clients.Group(product.Id.ToString()).GetProductCount(new ProductCountViewModel
+        {
+            ProductId = product.Id,
+            AvailableQuantity = product.AvailableQuantity,
+            ReservedQuantity = product.ReservedQuantity
+        });
+
         return new OkResult();
     }
 
@@ -184,4 +200,30 @@ public class ProductController : ControllerBase
         }
         return new OkObjectResult(result);
     }
+
+    // GET api/Products/Orders/5
+    [Authorize]
+    [HttpGet("Cart/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderProductViewModel>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetReservedProducts([FromRoute] int userId)
+    {
+        User.CheckIsOwnerOrAdmin(userId);
+        var orderProducts = await _productService.GetReservedProducts(userId);
+        var result = new List<OrderProductViewModel>();
+        foreach (var orderProduct in orderProducts)
+        {
+            result.Add(new OrderProductViewModel
+            {
+                ProductId = orderProduct.ProductId,
+                Count = orderProduct.Count,
+                ProductName = orderProduct.Product.Name,
+                ProductPrice = orderProduct.Product.Price,
+            });
+        }
+        return new OkObjectResult(result);
+    }
+
 }

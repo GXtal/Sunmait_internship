@@ -15,8 +15,10 @@ public interface IProductService
     public Task AddProduct(string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId);
 
-    public Task UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
+    public Task<Product> UpdateProduct(int id, string newProductName, string newProductDescription, decimal newProductPrice,
         int newProductQuantity, int brandId, int categoryId);
 
     public Task<IEnumerable<OrderProduct>> GetOrderProducts(int orderId, int userId);
+
+    public Task<IEnumerable<ReservedProduct>> GetReservedProducts(int userId);
 }
